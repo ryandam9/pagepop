@@ -4,11 +4,11 @@ import (
 	"errors"
 	"flag"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 
 	"pagepop/internal/builder"
+	"pagepop/internal/logutil"
 )
 
 const version = "0.1.0"
@@ -36,8 +36,6 @@ Flags:
 `
 
 func main() {
-	log.SetFlags(0)
-
 	var cfgPath string
 	flag.StringVar(&cfgPath, "config", "md_files.yml", "Path to the YAML config file listing markdown files")
 	flag.StringVar(&cfgPath, "c", "md_files.yml", "Short form of --config")
@@ -45,6 +43,10 @@ func main() {
 	var outPath string
 	flag.StringVar(&outPath, "output", "blog", "Output directory for the built site")
 	flag.StringVar(&outPath, "o", "blog", "Short form of --output")
+
+	var verbose bool
+	flag.BoolVar(&verbose, "verbose", false, "Enable verbose (debug) logging")
+	flag.BoolVar(&verbose, "v", false, "Short form of --verbose")
 
 	embedStyles := flag.Bool("embed-styles", false, "Copy style.css into each post directory for standalone pages")
 	clean := flag.Bool("clean", false, "Wipe the output directory before building")
@@ -60,9 +62,15 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  pagepop --embed-styles          Copy CSS into each post dir\n")
 		fmt.Fprintf(os.Stderr, "  pagepop --clean                 Wipe output directory before build\n")
 		fmt.Fprintf(os.Stderr, "  pagepop --version               Show version\n")
+		fmt.Fprintf(os.Stderr, "  pagepop --verbose               Enable verbose logging\n")
 	}
 
 	flag.Parse()
+
+	log := logutil.New(logutil.LevelInfo)
+	if verbose {
+		log.SetLevel(logutil.LevelDebug)
+	}
 
 	if flag.NFlag() == 0 {
 		flag.Usage()
@@ -75,19 +83,23 @@ func main() {
 	}
 
 	if cfgPath == "" {
-		log.Fatal("Error: --config path is required")
+		log.Error("--config path is required")
+		os.Exit(1)
 	}
 
 	absOutput, err := filepath.Abs(outPath)
 	if err != nil {
-		log.Fatalf("Error: could not resolve output path: %v", err)
+		log.Error("could not resolve output path: %v", err)
+		os.Exit(1)
 	}
 
-	if err := builder.Site(absOutput, cfgPath, *embedStyles, *clean); err != nil {
+	if err := builder.Site(absOutput, cfgPath, *embedStyles, *clean, log); err != nil {
 		var pathErr *os.PathError
 		if errors.As(err, &pathErr) {
-			log.Fatalf("Error: %v", pathErr)
+			log.Error("%v", pathErr)
+			os.Exit(1)
 		}
-		log.Fatalf("Error building site: %v", err)
+		log.Error("building site: %v", err)
+		os.Exit(1)
 	}
 }

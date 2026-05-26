@@ -307,6 +307,108 @@ a:hover {
     background-color: transparent !important;
 }
 
+/* Callout / Admonition */
+.callout {
+    margin: 2rem 0;
+    padding: 1.25rem 1.5rem;
+    border-radius: var(--radius);
+    border-left: 4px solid;
+}
+
+.callout > :last-child {
+    margin-bottom: 0;
+}
+
+.callout::before {
+    display: block;
+    font-weight: 700;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+}
+
+.callout-info {
+    background: #eff6ff;
+    border-left-color: #3b82f6;
+    color: #1e40af;
+}
+.callout-info::before { content: "Info"; }
+
+.callout-warning {
+    background: #fffbeb;
+    border-left-color: #f59e0b;
+    color: #92400e;
+}
+.callout-warning::before { content: "Warning"; }
+
+.callout-tip {
+    background: #f0fdf4;
+    border-left-color: #22c55e;
+    color: #166534;
+}
+.callout-tip::before { content: "Tip"; }
+
+.callout-success {
+    background: #ecfdf5;
+    border-left-color: #10b981;
+    color: #065f46;
+}
+.callout-success::before { content: "Success"; }
+
+.callout-note {
+    background: #f8fafc;
+    border-left-color: #64748b;
+    color: #334155;
+}
+.callout-note::before { content: "Note"; }
+
+.callout-danger,
+.callout-error {
+    background: #fef2f2;
+    border-left-color: #ef4444;
+    color: #991b1b;
+}
+.callout-danger::before,
+.callout-error::before { content: "Danger"; }
+
+@media (prefers-color-scheme: dark) {
+    .callout {
+        background: var(--bg-card);
+    }
+
+    .callout-info {
+        border-left-color: #60a5fa;
+        color: #93c5fd;
+    }
+
+    .callout-warning {
+        border-left-color: #fbbf24;
+        color: #fde68a;
+    }
+
+    .callout-tip {
+        border-left-color: #34d399;
+        color: #a7f3d0;
+    }
+
+    .callout-success {
+        border-left-color: #34d399;
+        color: #6ee7b7;
+    }
+
+    .callout-note {
+        border-left-color: #94a3b8;
+        color: #cbd5e1;
+    }
+
+    .callout-danger,
+    .callout-error {
+        border-left-color: #f87171;
+        color: #fca5a5;
+    }
+}
+
 /* Footer */
 .footer {
     text-align: center;

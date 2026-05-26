@@ -7,6 +7,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"pagepop/internal/logutil"
 )
 
 func TestExtractMeta(t *testing.T) {
@@ -107,7 +109,7 @@ This is a **bold** test.`
 
 	outDir := filepath.Join(tempDir, "blog")
 
-	if err := Site(outDir, configPath, true, false); err != nil {
+	if err := Site(outDir, configPath, true, false, logutil.NewDiscard()); err != nil {
 		t.Fatalf("Site() failed: %v", err)
 	}
 

@@ -5,13 +5,14 @@ import (
 	_ "embed"
 	"fmt"
 	"html/template"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"sort"
 	"strings"
 	"time"
+
+	"pagepop/internal/logutil"
 
 	"github.com/alecthomas/chroma/v2/formatters/html"
 	"github.com/alecthomas/chroma/v2/styles"
@@ -80,7 +81,7 @@ var (
 //	  <slug>/
 //	    index.html
 //	    <assets>
-func Site(outputDir, configPath string, embedStyles, clean bool) error {
+func Site(outputDir, configPath string, embedStyles, clean bool, log *logutil.Logger) error {
 	if clean {
 		if err := os.RemoveAll(outputDir); err != nil {
 			return fmt.Errorf("cleaning output dir: %w", err)
@@ -111,9 +112,9 @@ func Site(outputDir, configPath string, embedStyles, clean bool) error {
 	var posts []post
 
 	for _, entry := range cfg.MarkdownFiles {
-		p, err := processFile(entry.File, outputDir, cssBytes, embedStyles, cfg.Site)
+		p, err := processFile(entry.File, outputDir, cssBytes, embedStyles, cfg.Site, log)
 		if err != nil {
-			log.Printf("WARN: processing file %s: %v", entry.File, err)
+			log.Warn("processing file %s: %v", entry.File, err)
 			continue
 		}
 		posts = append(posts, p)
@@ -144,11 +145,11 @@ func Site(outputDir, configPath string, embedStyles, clean bool) error {
 		return fmt.Errorf("copying static: %w", err)
 	}
 
-	log.Printf("Done. %d posts built, output: %s", len(posts), outputDir)
+	log.Info("Done. %d posts built, output: %s", len(posts), outputDir)
 	return nil
 }
 
-func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, siteCfg SiteConfig) (post, error) {
+func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
 	data, err := os.ReadFile(mdPath)
 	if err != nil {
 		return post{}, fmt.Errorf("reading %s: %w", mdPath, err)
@@ -166,7 +167,7 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, si
 		return post{}, fmt.Errorf("stat %s: %w", mdPath, err)
 	}
 	if outStat, err := os.Stat(outPath); err == nil && !outStat.ModTime().Before(mdStat.ModTime()) {
-		log.Printf("Skipped (up to date): %s", outPath)
+		log.Info("Skipped (up to date): %s", outPath)
 		return post{Meta: meta, Body: renderMarkdown(bodyMD)}, nil
 	}
 
@@ -198,7 +199,7 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, si
 		return post{}, fmt.Errorf("writing %s: %w", outPath, err)
 	}
 
-	log.Printf("Built: %s", outPath)
+	log.Info("Built: %s", outPath)
 	return post{Meta: meta, Body: bodyHTML}, nil
 }
 
@@ -433,9 +434,6 @@ func fixImagePaths(html string) string {
 }
 
 func renderMarkdown(md string) template.HTML {
-	md = strings.ReplaceAll(md, "[!info]", "")
-	md = strings.ReplaceAll(md, "[!warning]", "")
-
 	var buf bytes.Buffer
 	mdRenderer := goldmark.New(
 		goldmark.WithExtensions(
@@ -451,7 +449,20 @@ func renderMarkdown(md string) template.HTML {
 	if err := mdRenderer.Convert([]byte(md), &buf); err != nil {
 		return template.HTML(fmt.Sprintf("<p>error rendering markdown: %v</p>", err))
 	}
-	return template.HTML(buf.String())
+	return template.HTML(transformCallouts(buf.String()))
+}
+
+var calloutRe = regexp.MustCompile(`(?si)<blockquote>\s*<p>\[!(info|warning|tip|success|note|danger|error)\]\s*(.*?)</p>(.*?)</blockquote>`)
+
+func transformCallouts(html string) string {
+	return calloutRe.ReplaceAllStringFunc(html, func(match string) string {
+		parts := calloutRe.FindStringSubmatch(match)
+		if len(parts) < 4 {
+			return match
+		}
+		typ := strings.ToLower(parts[1])
+		return fmt.Sprintf(`<div class="callout callout-%s"><p>%s</p>%s</div>`, typ, parts[2], parts[3])
+	})
 }
 
 const rssTemplate = `<?xml version="1.0" encoding="utf-8"?>
