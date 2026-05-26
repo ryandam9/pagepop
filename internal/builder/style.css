@@ -1,0 +1,336 @@
+/* ryandam.net - modern minimal theme */
+:root {
+    --bg: #fafafa;
+    --bg-card: #ffffff;
+    --bg-code: #f4f4f5;
+    --text: #18181b;
+    --text-muted: #71717a;
+    --accent: #10b981;
+    --accent-hover: #059669;
+    --border: #e4e4e7;
+    --radius: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --bg: #09090b;
+        --bg-card: #18181b;
+        --bg-code: #27272a;
+        --text: #f4f4f5;
+        --text-muted: #a1a1aa;
+        --accent: #34d399;
+        --accent-hover: #10b981;
+        --border: #27272a;
+    }
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.8;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--accent);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+a:hover {
+    color: var(--accent-hover);
+}
+
+/* Navigation */
+.nav {
+    border-bottom: 1px solid var(--border);
+    background: var(--bg-card);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    backdrop-filter: blur(8px);
+    background: color-mix(in srgb, var(--bg-card) 80%, transparent);
+}
+
+.nav-inner {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.nav-logo {
+    font-weight: 800;
+    font-size: 1.25rem;
+    color: var(--text) !important;
+    letter-spacing: -0.025em;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    color: var(--text-muted) !important;
+    font-size: 0.95rem;
+    font-weight: 500;
+}
+
+.nav-links a:hover,
+.nav-links a.active {
+    color: var(--text) !important;
+}
+
+/* Blog listing */
+.listing {
+    max-width: 900px;
+    margin: 4rem auto;
+    padding: 0 2rem;
+}
+
+.listing h1 {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 4rem;
+    letter-spacing: -0.04em;
+}
+
+.post-list {
+    list-style: none;
+}
+
+.post-item {
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    transition: transform 0.2s ease;
+}
+
+.post-item:last-child {
+    border-bottom: none;
+}
+
+.post-link {
+    display: inline-block;
+    text-decoration: none !important;
+    margin-bottom: 0.75rem;
+}
+
+.post-title {
+    font-size: 1.875rem;
+    font-weight: 800;
+    color: var(--text);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    transition: color 0.2s;
+}
+
+.post-link:hover .post-title {
+    color: var(--accent);
+}
+
+.post-date {
+    font-size: 0.9rem;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.post-desc {
+    font-size: 1.05rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    max-width: 65ch;
+    margin-bottom: 1rem;
+}
+
+.post-item .post-desc {
+    margin-bottom: 0.75rem;
+}
+
+.post-tags {
+    margin-bottom: 0.5rem;
+}
+
+.tag {
+    display: inline-block;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 0.25rem 0.6rem;
+    background: var(--bg-code);
+    border-radius: 6px;
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+}
+
+.post-item:hover .tag {
+    border-color: var(--accent);
+    color: var(--accent);
+}
+
+/* Blog post */
+.post {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 4rem 2rem 8rem;
+}
+
+.post-header {
+    margin-bottom: 4rem;
+    text-align: center;
+}
+
+.post-header h1 {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.05em;
+}
+
+/* Post body content */
+.post-body {
+    font-size: 1.125rem;
+    color: var(--text);
+}
+
+.post-body h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 3rem 0 1.25rem;
+    letter-spacing: -0.025em;
+}
+
+.post-body h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 2.5rem 0 1rem;
+}
+
+.post-body p {
+    margin: 0 0 1.5rem;
+}
+
+.post-body ul,
+.post-body ol {
+    margin: 0 0 1.5rem 1.5rem;
+}
+
+.post-body li {
+    margin-bottom: 0.5rem;
+}
+
+.post-body blockquote {
+    margin: 2rem 0;
+    padding: 1.5rem 2rem;
+    border-left: 4px solid var(--accent);
+    background: var(--bg-code);
+    border-radius: 0 var(--radius) var(--radius) 0;
+    font-style: italic;
+    color: var(--text-muted);
+}
+
+.post-body img {
+    max-width: 100%;
+    height: auto;
+    border-radius: var(--radius);
+    margin: 3rem 0;
+    display: block;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+.post-body pre {
+    font-family: 'Overpass Mono', monospace;
+    background: var(--bg-code) !important;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    margin: 2rem 0;
+    overflow-x: auto;
+}
+
+.post-body code {
+    font-family: 'Overpass Mono', monospace;
+    font-size: 0.9em;
+    background: var(--bg-code);
+    padding: 0.2em 0.4em;
+    border-radius: 6px;
+}
+
+.post-body pre code {
+    background: none;
+    padding: 0;
+    font-size: 0.95rem;
+}
+
+/* Tables */
+.post-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 2rem 0;
+    font-size: 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+}
+
+.post-body th,
+.post-body td {
+    padding: 0.75rem 1rem;
+    border: 1px solid var(--border);
+    text-align: left;
+}
+
+.post-body th {
+    background: var(--bg-code);
+    font-weight: 700;
+    color: var(--text);
+}
+
+.post-body tr:nth-child(even) {
+    background: color-mix(in srgb, var(--bg-code) 30%, transparent);
+}
+
+/* Chroma Syntax Highlighting Fixes */
+.chroma {
+    background-color: transparent !important;
+}
+
+/* Footer */
+.footer {
+    text-align: center;
+    padding: 4rem 2rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .nav-inner {
+        padding: 0 1.5rem;
+    }
+
+    .post {
+        padding: 2rem 1.5rem 4rem;
+    }
+
+    .post-header h1 {
+        font-size: 2.5rem;
+    }
+
+    .listing h1 {
+        font-size: 2rem;
+    }
+}

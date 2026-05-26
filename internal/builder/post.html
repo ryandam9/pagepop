@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Meta.Title}} - {{.Site.Title}}</title>
+    <meta name="description" content="{{.Meta.Description}}" />
+    <meta property="og:title" content="{{.Meta.Title}}" />
+    <meta property="og:description" content="{{.Meta.Description}}" />
+    <meta property="og:type" content="article" />
+    {{if .Site.BaseURL}}
+    <meta property="og:url" content="{{.Site.BaseURL}}/{{.Meta.Date.Format " 2006/01/02"}}/{{.Meta.Slug}}/index.html" />
+    {{end}}
+    <meta name="twitter:card" content="summary" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{.CSSHref}}" />
+</head>
+
+<body>
+
+    <main class="post">
+        <article>
+            <header class="post-header">
+                <h1>{{.Meta.Title}}</h1>
+                <p class="post-desc">{{.Meta.Description}}</p>
+                {{if .Meta.Tags}}
+                <div class="post-tags">
+                    {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
+                </div>
+                {{end}}
+                <time>{{.Meta.Date.Format "January 2, 2006"}}</time>
+            </header>
+            <div class="post-body">
+                {{.Body}}
+            </div>
+        </article>
+    </main>
+
+</body>
+
+</html>

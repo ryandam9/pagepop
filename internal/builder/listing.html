@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Site.Title}}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+
+    <main class="listing">
+        <h1>{{.Site.Title}}</h1>
+        <ul class="post-list">
+            {{range .Posts}}
+            <li class="post-item">
+                <article>
+                    <a href='{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html' class="post-link">
+                        <h2 class="post-title">{{.Meta.Title}}</h2>
+                    </a>
+                    <p class="post-desc">{{.Meta.Description}}</p>
+                    {{if .Meta.Tags}}
+                    <div class="post-tags">
+                        {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
+                    </div>
+                    {{end}}
+                    <time class="post-date">{{.Meta.Date.Format "January 2, 2006"}}</time>
+                </article>
+            </li>
+            {{end}}
+        </ul>
+    </main>
+
+</body>
+
+</html>

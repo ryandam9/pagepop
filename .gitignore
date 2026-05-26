@@ -1,0 +1,36 @@
+# Go build output
+/bin/
+/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+pagepop/pagepop
+
+# Test binary
+*.test
+
+# Output of go coverage
+*.out
+*.cov
+coverage.*
+
+# Go workspace
+go.work
+go.work.sum
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Python remnants (keep for transition)
+__pycache__/
+*.py[cod]
+dist/
+.venv/
+blog/
