@@ -153,6 +153,12 @@ a:hover {
     margin-bottom: 1rem;
 }
 
+.post-header .post-desc {
+    max-width: 80ch;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 .post-item .post-desc {
     margin-bottom: 0.75rem;
 }
