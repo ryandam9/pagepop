@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
+    <script>(function(){try{var t=localStorage.getItem('pagepop-theme');if(t==='neo')document.documentElement.setAttribute('data-theme','neo');}catch(e){}})();</script>
 </head>
 
 <body>
@@ -35,6 +36,27 @@
         </ul>
     </main>
 
+    <button id="theme-toggle" aria-label="Toggle theme"></button>
+    <script>
+        (function () {
+            var btn = document.getElementById('theme-toggle');
+            var html = document.documentElement;
+            function sync() {
+                btn.textContent = html.getAttribute('data-theme') === 'neo' ? 'Default' : 'Neo Brutalism';
+            }
+            sync();
+            btn.addEventListener('click', function () {
+                if (html.getAttribute('data-theme') === 'neo') {
+                    html.removeAttribute('data-theme');
+                    try { localStorage.removeItem('pagepop-theme'); } catch (e) {}
+                } else {
+                    html.setAttribute('data-theme', 'neo');
+                    try { localStorage.setItem('pagepop-theme', 'neo'); } catch (e) {}
+                }
+                sync();
+            });
+        })();
+    </script>
 </body>
 
 </html>

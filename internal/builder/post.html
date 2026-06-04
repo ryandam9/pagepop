@@ -18,6 +18,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{.CSSHref}}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
+    <script>(function(){try{var t=localStorage.getItem('pagepop-theme');if(t==='neo')document.documentElement.setAttribute('data-theme','neo');}catch(e){}})();</script>
 </head>
 
 <body>
@@ -55,6 +56,27 @@
                 });
             });
         });
+    </script>
+    <button id="theme-toggle" aria-label="Toggle theme"></button>
+    <script>
+        (function () {
+            var btn = document.getElementById('theme-toggle');
+            var html = document.documentElement;
+            function sync() {
+                btn.textContent = html.getAttribute('data-theme') === 'neo' ? 'Default' : 'Neo Brutalism';
+            }
+            sync();
+            btn.addEventListener('click', function () {
+                if (html.getAttribute('data-theme') === 'neo') {
+                    html.removeAttribute('data-theme');
+                    try { localStorage.removeItem('pagepop-theme'); } catch (e) {}
+                } else {
+                    html.setAttribute('data-theme', 'neo');
+                    try { localStorage.setItem('pagepop-theme', 'neo'); } catch (e) {}
+                }
+                sync();
+            });
+        })();
     </script>
 </body>
 
