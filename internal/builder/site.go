@@ -187,12 +187,21 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, si
 	}
 	bodyHTML = template.HTML(fixImagePaths(string(bodyHTML)))
 
-	cssHref := "/style.css"
+	// Link the root style.css with a path relative to this post's directory so
+	// it resolves correctly no matter where the blog is mounted (e.g. served
+	// from a subdirectory like /blog/). The post lives at
+	// outputDir/YYYY/MM/DD/<slug>/, so this yields ../../../../style.css.
+	cssHref := "style.css"
 	if embedStyles {
-		cssHref = "style.css"
 		if err := os.WriteFile(filepath.Join(dir, "style.css"), cssBytes, 0644); err != nil {
 			return post{}, fmt.Errorf("writing style.css in post dir: %w", err)
 		}
+	} else {
+		rel, err := filepath.Rel(dir, outputDir)
+		if err != nil {
+			return post{}, fmt.Errorf("computing css path for %s: %w", mdPath, err)
+		}
+		cssHref = filepath.ToSlash(filepath.Join(rel, "style.css"))
 	}
 
 	full, err := wrapPost(meta, bodyHTML, toc, cssHref, siteCfg)
