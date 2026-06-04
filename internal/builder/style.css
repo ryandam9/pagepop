@@ -523,17 +523,17 @@ a:hover {
 
 @media (min-width: 1200px) {
     .post {
-        max-width: 1300px;
+        max-width: 1080px;
     }
 
     .post-layout {
         display: flex;
-        gap: 3rem;
+        gap: 2.5rem;
         align-items: flex-start;
     }
 
     .toc-sidebar {
-        flex: 0 0 240px;
+        flex: 0 0 220px;
         position: sticky;
         top: 2rem;
         max-height: calc(100vh - 4rem);
