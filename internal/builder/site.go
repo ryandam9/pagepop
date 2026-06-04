@@ -69,6 +69,8 @@ var (
 	reImgSrc      = regexp.MustCompile(`<img\s+[^>]*src="([^"]+)"`)
 	reFixImgPath  = regexp.MustCompile(`(<img\s+[^>]*src=")(?:\.\./|\./)?(?:images/)?([^"]+")`)
 	reSlugClean   = regexp.MustCompile(`[^a-z0-9-]`)
+	reHeadingTag  = regexp.MustCompile(`(?s)<h([2-4])>(.*?)</h[2-4]>`)
+	reStripTags   = regexp.MustCompile(`<[^>]+>`)
 )
 
 // Site builds the blog directory from a YAML config file.
@@ -171,7 +173,10 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, si
 		return post{Meta: meta, Body: renderMarkdown(bodyMD)}, nil
 	}
 
-	bodyHTML := renderMarkdown(bodyMD)
+	rawHTML := renderMarkdown(bodyMD)
+	injected, tocEntries := injectHeadingIDs(string(rawHTML))
+	toc := buildTOC(tocEntries)
+	bodyHTML := template.HTML(injected)
 
 	if err := os.MkdirAll(dir, 0755); err != nil {
 		return post{}, fmt.Errorf("mkdir %s: %w", dir, err)
@@ -190,7 +195,7 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, si
 		}
 	}
 
-	full, err := wrapPost(meta, bodyHTML, cssHref, siteCfg)
+	full, err := wrapPost(meta, bodyHTML, toc, cssHref, siteCfg)
 	if err != nil {
 		return post{}, fmt.Errorf("wrapping post %s: %w", mdPath, err)
 	}
@@ -277,7 +282,62 @@ func extractMeta(src, filename string) (postMeta, string) {
 	return m, body
 }
 
-func wrapPost(m postMeta, bodyHTML template.HTML, cssHref string, siteCfg SiteConfig) (string, error) {
+type tocEntry struct {
+	Level int
+	ID    string
+	Text  string
+}
+
+// injectHeadingIDs adds id attributes to h2–h4 elements and returns the
+// modified HTML along with entries for building a table of contents.
+func injectHeadingIDs(htmlStr string) (string, []tocEntry) {
+	var entries []tocEntry
+	idCounts := map[string]int{}
+
+	result := reHeadingTag.ReplaceAllStringFunc(htmlStr, func(match string) string {
+		parts := reHeadingTag.FindStringSubmatch(match)
+		if len(parts) < 3 {
+			return match
+		}
+		level := int(parts[1][0] - '0')
+		inner := parts[2]
+
+		plain := reStripTags.ReplaceAllString(inner, "")
+		id := strings.ToLower(plain)
+		id = strings.ReplaceAll(id, " ", "-")
+		id = reSlugClean.ReplaceAllString(id, "")
+		id = strings.Trim(id, "-")
+		if id == "" {
+			id = fmt.Sprintf("heading-%d", level)
+		}
+
+		base := id
+		if idCounts[base] > 0 {
+			id = fmt.Sprintf("%s-%d", base, idCounts[base])
+		}
+		idCounts[base]++
+
+		entries = append(entries, tocEntry{Level: level, ID: id, Text: template.HTMLEscapeString(plain)})
+		return fmt.Sprintf(`<h%d id="%s">%s</h%d>`, level, id, inner, level)
+	})
+
+	return result, entries
+}
+
+func buildTOC(entries []tocEntry) template.HTML {
+	if len(entries) < 2 {
+		return ""
+	}
+	var buf strings.Builder
+	buf.WriteString(`<nav class="toc"><ol>`)
+	for _, e := range entries {
+		buf.WriteString(fmt.Sprintf(`<li class="toc-h%d"><a href="#%s">%s</a></li>`, e.Level, e.ID, e.Text))
+	}
+	buf.WriteString(`</ol></nav>`)
+	return template.HTML(buf.String())
+}
+
+func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref string, siteCfg SiteConfig) (string, error) {
 	tmpl, err := template.New("post").Parse(postTemplate)
 	if err != nil {
 		return "", err
@@ -287,11 +347,13 @@ func wrapPost(m postMeta, bodyHTML template.HTML, cssHref string, siteCfg SiteCo
 	data := struct {
 		Meta    postMeta
 		Body    template.HTML
+		TOC     template.HTML
 		CSSHref string
 		Site    SiteConfig
 	}{
 		Meta:    m,
 		Body:    bodyHTML,
+		TOC:     toc,
 		CSSHref: cssHref,
 		Site:    siteCfg,
 	}
