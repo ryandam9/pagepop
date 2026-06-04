@@ -274,32 +274,63 @@ a:hover {
     font-size: 0.95rem;
 }
 
-/* Tables */
-.post-body table {
-    width: 100%;
-    border-collapse: collapse;
+/* Tables — DataTables controls styling; keep wrapper spacing only */
+.post-body .dataTables_wrapper {
     margin: 2rem 0;
     font-size: 1rem;
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    overflow: hidden;
 }
 
-.post-body th,
-.post-body td {
-    padding: 0.75rem 1rem;
+.post-body table.dataTable {
+    width: 100% !important;
+    border-collapse: collapse;
+}
+
+.post-body table.dataTable th,
+.post-body table.dataTable td {
+    padding: 0.65rem 1rem;
     border: 1px solid var(--border);
     text-align: left;
 }
 
-.post-body th {
+.post-body table.dataTable thead th {
     background: var(--bg-code);
     font-weight: 700;
     color: var(--text);
 }
 
-.post-body tr:nth-child(even) {
+.post-body table.dataTable tbody tr:nth-child(even) {
     background: color-mix(in srgb, var(--bg-code) 30%, transparent);
+}
+
+.post-body .dataTables_filter input,
+.post-body .dataTables_length select {
+    background: var(--bg-code);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 0.2rem 0.5rem;
+}
+
+.post-body .dataTables_info,
+.post-body .dataTables_filter label,
+.post-body .dataTables_length label {
+    color: var(--text-muted, var(--text));
+    font-size: 0.875rem;
+}
+
+.post-body .dataTables_paginate .paginate_button {
+    background: var(--bg-code);
+    color: var(--text) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: var(--radius);
+    padding: 0.2rem 0.6rem;
+    cursor: pointer;
+}
+
+.post-body .dataTables_paginate .paginate_button.current,
+.post-body .dataTables_paginate .paginate_button:hover {
+    background: var(--accent, var(--bg-code)) !important;
+    color: var(--text) !important;
 }
 
 /* Chroma Syntax Highlighting Fixes */
