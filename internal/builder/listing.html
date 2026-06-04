@@ -9,6 +9,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
     <script>(function(){try{var t=localStorage.getItem('pagepop-theme');if(t==='neo')document.documentElement.setAttribute('data-theme','neo');}catch(e){}})();</script>
 </head>
 
@@ -26,10 +27,11 @@
                     <p class="post-desc">{{.Meta.Description}}</p>
                     {{if .Meta.Tags}}
                     <div class="post-tags">
+                        <i class="fa-solid fa-tags"></i>
                         {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
                     </div>
                     {{end}}
-                    <time class="post-date">{{.Meta.Date.Format "January 2, 2006"}}</time>
+                    <time class="post-date"><i class="fa-regular fa-calendar"></i> {{.Meta.Date.Format "January 2, 2006"}}</time>
                 </article>
             </li>
             {{end}}
@@ -42,7 +44,10 @@
             var btn = document.getElementById('theme-toggle');
             var html = document.documentElement;
             function sync() {
-                btn.textContent = html.getAttribute('data-theme') === 'neo' ? 'Default' : 'Neo Brutalism';
+                var isNeo = html.getAttribute('data-theme') === 'neo';
+                btn.innerHTML = isNeo
+                    ? '<i class="fa-solid fa-circle-half-stroke"></i> Default'
+                    : '<i class="fa-solid fa-palette"></i> Neo Brutalism';
             }
             sync();
             btn.addEventListener('click', function () {
