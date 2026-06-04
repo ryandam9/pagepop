@@ -83,7 +83,7 @@ var (
 //	  <slug>/
 //	    index.html
 //	    <assets>
-func Site(outputDir, configPath string, embedStyles, clean bool, log *logutil.Logger) error {
+func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *logutil.Logger) error {
 	if clean {
 		if err := os.RemoveAll(outputDir); err != nil {
 			return fmt.Errorf("cleaning output dir: %w", err)
@@ -114,7 +114,7 @@ func Site(outputDir, configPath string, embedStyles, clean bool, log *logutil.Lo
 	var posts []post
 
 	for _, entry := range cfg.MarkdownFiles {
-		p, err := processFile(entry.File, outputDir, cssBytes, embedStyles, cfg.Site, log)
+		p, err := processFile(entry.File, outputDir, cssBytes, embedStyles, tocTop, cfg.Site, log)
 		if err != nil {
 			log.Warn("processing file %s: %v", entry.File, err)
 			continue
@@ -151,7 +151,7 @@ func Site(outputDir, configPath string, embedStyles, clean bool, log *logutil.Lo
 	return nil
 }
 
-func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
+func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles, tocTop bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
 	data, err := os.ReadFile(mdPath)
 	if err != nil {
 		return post{}, fmt.Errorf("reading %s: %w", mdPath, err)
@@ -204,7 +204,7 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles bool, si
 		cssHref = filepath.ToSlash(filepath.Join(rel, "style.css"))
 	}
 
-	full, err := wrapPost(meta, bodyHTML, toc, cssHref, siteCfg)
+	full, err := wrapPost(meta, bodyHTML, toc, cssHref, tocTop, siteCfg)
 	if err != nil {
 		return post{}, fmt.Errorf("wrapping post %s: %w", mdPath, err)
 	}
@@ -346,7 +346,7 @@ func buildTOC(entries []tocEntry) template.HTML {
 	return template.HTML(buf.String())
 }
 
-func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref string, siteCfg SiteConfig) (string, error) {
+func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref string, tocTop bool, siteCfg SiteConfig) (string, error) {
 	tmpl, err := template.New("post").Parse(postTemplate)
 	if err != nil {
 		return "", err
@@ -357,12 +357,14 @@ func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref str
 		Meta    postMeta
 		Body    template.HTML
 		TOC     template.HTML
+		TOCTop  bool
 		CSSHref string
 		Site    SiteConfig
 	}{
 		Meta:    m,
 		Body:    bodyHTML,
 		TOC:     toc,
+		TOCTop:  tocTop,
 		CSSHref: cssHref,
 		Site:    siteCfg,
 	}

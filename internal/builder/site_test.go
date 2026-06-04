@@ -2,6 +2,7 @@ package builder
 
 import (
 	"fmt"
+	"html/template"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -110,14 +111,14 @@ This is a **bold** test.`
 
 	outDir := filepath.Join(tempDir, "blog")
 
-	if err := Site(outDir, configPath, true, false, logutil.NewDiscard()); err != nil {
+	if err := Site(outDir, configPath, true, false, false, logutil.NewDiscard()); err != nil {
 		t.Fatalf("Site() failed: %v", err)
 	}
 
 	// With embed-styles off, posts must link style.css via a path relative to
 	// their own directory so the blog works when served from a subdirectory.
 	noEmbedDir := filepath.Join(tempDir, "blog-noembed")
-	if err := Site(noEmbedDir, configPath, false, false, logutil.NewDiscard()); err != nil {
+	if err := Site(noEmbedDir, configPath, false, false, false, logutil.NewDiscard()); err != nil {
 		t.Fatalf("Site() (no embed) failed: %v", err)
 	}
 	noEmbedHTML, err := os.ReadFile(filepath.Join(noEmbedDir, "2024/01/01", "post", "index.html"))
@@ -153,6 +154,28 @@ This is a **bold** test.`
 	}
 	if _, err := os.Stat(filepath.Join(postDir, "dummy.png")); os.IsNotExist(err) {
 		t.Errorf("image not copied to post dir")
+	}
+}
+
+func TestTOCPosition(t *testing.T) {
+	body := template.HTML("<div class=\"post-body\"></div>")
+	toc := template.HTML(`<nav class="toc"></nav>`)
+	meta := postMeta{Title: "T", Date: time.Now()}
+
+	side, err := wrapPost(meta, body, toc, "style.css", false, SiteConfig{})
+	if err != nil {
+		t.Fatalf("wrapPost (side) failed: %v", err)
+	}
+	if !strings.Contains(side, "post-layout toc-side") {
+		t.Errorf("default layout should be toc-side; got:\n%s", side)
+	}
+
+	top, err := wrapPost(meta, body, toc, "style.css", true, SiteConfig{})
+	if err != nil {
+		t.Fatalf("wrapPost (top) failed: %v", err)
+	}
+	if !strings.Contains(top, "post-layout toc-top") {
+		t.Errorf("--toc-top should render toc-top layout; got:\n%s", top)
 	}
 }
 

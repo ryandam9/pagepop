@@ -38,7 +38,7 @@
                 <time><i class="fa-regular fa-calendar"></i> {{.Meta.Date.Format "January 2, 2006"}}</time>
             </header>
             {{if .TOC}}
-            <div class="post-layout">
+            <div class="post-layout {{if .TOCTop}}toc-top{{else}}toc-side{{end}}">
                 <aside class="toc-sidebar">
                     {{.TOC}}
                 </aside>
