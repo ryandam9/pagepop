@@ -50,6 +50,7 @@ func main() {
 
 	embedStyles := flag.Bool("embed-styles", false, "Copy style.css into each post directory for standalone pages")
 	clean := flag.Bool("clean", false, "Wipe the output directory before building")
+	tocTop := flag.Bool("toc-top", false, "Render the table of contents at the top of the post instead of in a left sidebar on large screens")
 	showVersion := flag.Bool("version", false, "Print version and exit")
 
 	flag.Usage = func() {
@@ -61,6 +62,7 @@ func main() {
 		fmt.Fprintf(os.Stderr, "  pagepop -c my.yml -o ./dist     Custom config and output\n")
 		fmt.Fprintf(os.Stderr, "  pagepop --embed-styles          Copy CSS into each post dir\n")
 		fmt.Fprintf(os.Stderr, "  pagepop --clean                 Wipe output directory before build\n")
+		fmt.Fprintf(os.Stderr, "  pagepop --toc-top               Place the TOC at the top instead of the side\n")
 		fmt.Fprintf(os.Stderr, "  pagepop --version               Show version\n")
 		fmt.Fprintf(os.Stderr, "  pagepop --verbose               Enable verbose logging\n")
 	}
@@ -93,7 +95,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	if err := builder.Site(absOutput, cfgPath, *embedStyles, *clean, log); err != nil {
+	if err := builder.Site(absOutput, cfgPath, *embedStyles, *clean, *tocTop, log); err != nil {
 		var pathErr *os.PathError
 		if errors.As(err, &pathErr) {
 			log.Error("%v", pathErr)

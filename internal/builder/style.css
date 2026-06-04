@@ -522,17 +522,18 @@ a:hover {
 }
 
 @media (min-width: 1200px) {
-    .post {
+    /* Sidebar layout — only when the TOC is set to the side */
+    .post:has(.post-layout.toc-side) {
         max-width: 1080px;
     }
 
-    .post-layout {
+    .post-layout.toc-side {
         display: flex;
         gap: 2.5rem;
         align-items: flex-start;
     }
 
-    .toc-sidebar {
+    .post-layout.toc-side .toc-sidebar {
         flex: 0 0 220px;
         position: sticky;
         top: 2rem;
@@ -542,12 +543,12 @@ a:hover {
         margin-bottom: 0;
     }
 
-    .toc-sidebar .toc {
+    .post-layout.toc-side .toc-sidebar .toc {
         display: block;
         margin-bottom: 0;
     }
 
-    .post-layout .post-body {
+    .post-layout.toc-side .post-body {
         flex: 1;
         min-width: 0;
     }
