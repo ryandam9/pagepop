@@ -524,3 +524,282 @@ a:hover {
         font-size: 2rem;
     }
 }
+
+/* ============================================================
+   Theme Toggle Button
+   ============================================================ */
+
+#theme-toggle {
+    position: fixed;
+    bottom: 1.5rem;
+    right: 1.5rem;
+    z-index: 1000;
+    padding: 0.5rem 0.9rem;
+    background: var(--bg-card);
+    color: var(--text-muted);
+    border: 1px solid var(--border);
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.15s, border-color 0.15s;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+#theme-toggle:hover {
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+/* ============================================================
+   Neo Brutalism Theme  (activated via data-theme="neo" on <html>)
+   ============================================================ */
+
+[data-theme="neo"] {
+    --bg: #ffffff;
+    --bg-card: #f5f5f5;
+    --bg-code: #e8e8e8;
+    --text: #000000;
+    --text-muted: #3a3a3a;
+    --accent: #0000ee;
+    --accent-hover: #0000bb;
+    --border: #000000;
+    --radius: 0;
+}
+
+/* Keep neo theme as light even when OS prefers dark */
+@media (prefers-color-scheme: dark) {
+    [data-theme="neo"] {
+        --bg: #ffffff;
+        --bg-card: #f5f5f5;
+        --bg-code: #e8e8e8;
+        --text: #000000;
+        --text-muted: #3a3a3a;
+        --accent: #0000ee;
+        --accent-hover: #0000bb;
+        --border: #000000;
+    }
+}
+
+[data-theme="neo"] a {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    font-weight: 600;
+    transition: none;
+}
+
+[data-theme="neo"] a:hover {
+    text-decoration-thickness: 2px;
+}
+
+/* Nav */
+[data-theme="neo"] .nav {
+    background: #ffd600 !important;
+    border-bottom: 3px solid #000000;
+    backdrop-filter: none;
+}
+
+[data-theme="neo"] .nav-logo {
+    color: #000000 !important;
+}
+
+[data-theme="neo"] .nav-links a {
+    color: #000000 !important;
+    font-weight: 700;
+}
+
+[data-theme="neo"] .nav-links a:hover,
+[data-theme="neo"] .nav-links a.active {
+    color: #000000 !important;
+    text-decoration: underline;
+}
+
+/* Listing */
+[data-theme="neo"] .listing h1 {
+    border-bottom: 4px solid #000000;
+    padding-bottom: 1rem;
+}
+
+[data-theme="neo"] .post-item {
+    border: 2px solid #000000;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #000000;
+    transition: transform 0.08s, box-shadow 0.08s;
+}
+
+[data-theme="neo"] .post-item:last-child {
+    border-bottom: 2px solid #000000;
+}
+
+[data-theme="neo"] .post-item:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 6px 6px 0 #000000;
+    background: #fffbdc;
+}
+
+[data-theme="neo"] .post-title {
+    font-weight: 900;
+    color: #000000;
+    transition: none;
+}
+
+[data-theme="neo"] .post-link:hover .post-title {
+    color: var(--accent);
+}
+
+/* Tags */
+[data-theme="neo"] .tag {
+    background: #ffd600;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 0;
+    font-weight: 700;
+    transition: none;
+}
+
+[data-theme="neo"] .post-item:hover .tag {
+    background: #000000;
+    color: #ffd600;
+    border-color: #000000;
+}
+
+/* Post header */
+[data-theme="neo"] .post-header h1 {
+    border-bottom: 4px solid #000000;
+    padding-bottom: 1rem;
+}
+
+/* Post body */
+[data-theme="neo"] .post-body h2 {
+    border-bottom: 3px solid #000000;
+    padding-bottom: 0.4rem;
+}
+
+[data-theme="neo"] .post-body blockquote {
+    border-left: 6px solid #000000;
+    background: #ffd600;
+    color: #000000;
+    font-style: normal;
+    font-weight: 600;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000000;
+}
+
+[data-theme="neo"] .post-body pre {
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 5px 5px 0 #000000;
+    background: #f0f0f0 !important;
+}
+
+[data-theme="neo"] .post-body code {
+    border: 1px solid #000000;
+    border-radius: 0;
+    background: #e8e8e8;
+}
+
+[data-theme="neo"] .post-body img {
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 6px 6px 0 #000000;
+}
+
+/* Tables */
+[data-theme="neo"] .post-body table.dataTable th,
+[data-theme="neo"] .post-body table.dataTable td {
+    border: 2px solid #000000;
+}
+
+[data-theme="neo"] .post-body table.dataTable thead th {
+    background: #ffd600;
+    color: #000000;
+}
+
+[data-theme="neo"] .post-body table.dataTable tbody tr:nth-child(even) {
+    background: #f5f5f5;
+}
+
+[data-theme="neo"] .post-body .dataTables_filter input,
+[data-theme="neo"] .post-body .dataTables_length select {
+    border: 2px solid #000000;
+    border-radius: 0;
+    background: #ffffff;
+    color: #000000;
+}
+
+[data-theme="neo"] .post-body .dataTables_paginate .paginate_button {
+    border: 2px solid #000000 !important;
+    border-radius: 0;
+    background: #ffffff;
+    color: #000000 !important;
+    box-shadow: 2px 2px 0 #000000;
+}
+
+[data-theme="neo"] .post-body .dataTables_paginate .paginate_button.current,
+[data-theme="neo"] .post-body .dataTables_paginate .paginate_button:hover {
+    background: #ffd600 !important;
+    color: #000000 !important;
+}
+
+/* TOC */
+[data-theme="neo"] .toc {
+    border: 3px solid #000000;
+    border-radius: 0;
+    box-shadow: 4px 4px 0 #000000;
+    background: #f5f5f5;
+}
+
+[data-theme="neo"] .toc::before {
+    color: #000000;
+}
+
+/* Callouts — restore light-mode colors when OS is in dark mode */
+@media (prefers-color-scheme: dark) {
+    [data-theme="neo"] .callout { background: inherit; }
+    [data-theme="neo"] .callout-info { background: #eff6ff; border-left-color: #3b82f6; color: #1e40af; }
+    [data-theme="neo"] .callout-warning { background: #fffbeb; border-left-color: #f59e0b; color: #92400e; }
+    [data-theme="neo"] .callout-tip { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
+    [data-theme="neo"] .callout-success { background: #ecfdf5; border-left-color: #10b981; color: #065f46; }
+    [data-theme="neo"] .callout-note { background: #f8fafc; border-left-color: #64748b; color: #334155; }
+    [data-theme="neo"] .callout-danger,
+    [data-theme="neo"] .callout-error { background: #fef2f2; border-left-color: #ef4444; color: #991b1b; }
+}
+
+[data-theme="neo"] .callout {
+    border: 2px solid #000000;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 #000000;
+}
+
+/* Footer */
+[data-theme="neo"] .footer {
+    border-top: 3px solid #000000;
+    font-weight: 600;
+}
+
+/* Toggle button — neo state */
+[data-theme="neo"] #theme-toggle {
+    background: #ffd600;
+    color: #000000;
+    border: 2px solid #000000;
+    border-radius: 0;
+    box-shadow: 3px 3px 0 #000000;
+    transition: transform 0.08s, box-shadow 0.08s;
+}
+
+[data-theme="neo"] #theme-toggle:hover {
+    color: #000000;
+    border-color: #000000;
+    background: #ffd600;
+    transform: translate(-2px, -2px);
+    box-shadow: 5px 5px 0 #000000;
+}
+
+[data-theme="neo"] #theme-toggle:active {
+    transform: translate(2px, 2px);
+    box-shadow: 1px 1px 0 #000000;
+}
