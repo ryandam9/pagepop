@@ -497,6 +497,47 @@ a:hover {
     color: var(--accent);
 }
 
+/* Sticky sidebar TOC layout — large screens only */
+.post-layout {
+    display: block;
+}
+
+.toc-sidebar {
+    margin-bottom: 2.5rem;
+}
+
+@media (min-width: 1200px) {
+    .post {
+        max-width: 1300px;
+    }
+
+    .post-layout {
+        display: flex;
+        gap: 3rem;
+        align-items: flex-start;
+    }
+
+    .toc-sidebar {
+        flex: 0 0 240px;
+        position: sticky;
+        top: 2rem;
+        max-height: calc(100vh - 4rem);
+        overflow-y: auto;
+        scrollbar-width: thin;
+        margin-bottom: 0;
+    }
+
+    .toc-sidebar .toc {
+        display: block;
+        margin-bottom: 0;
+    }
+
+    .post-layout .post-body {
+        flex: 1;
+        min-width: 0;
+    }
+}
+
 /* Footer */
 .footer {
     text-align: center;
