@@ -647,132 +647,138 @@ a:hover {
     border-color: var(--border);
 }
 
-#theme-menu button[data-theme="neo-1"] { background: #6260ff; color: #e4e4ff; }
-#theme-menu button[data-theme="neo-2"] { background: #edfad8; color: #163300; }
-#theme-menu button[data-theme="neo-3"] { background: #bdd9d7; color: #03363d; }
-#theme-menu button[data-theme="neo-4"] { background: #fbeaeb; color: #3447aa; }
-#theme-menu button[data-theme="neo-5"] { background: #fefce8; color: #141d38; }
-#theme-menu button[data-theme="neo-6"] { background: #ecfdf5; color: #000000; }
+#theme-menu button[data-theme="neo-1"] { background: #6260ff; color: #ffffff; }
+#theme-menu button[data-theme="neo-2"] { background: #163300; color: #ffffff; }
+#theme-menu button[data-theme="neo-3"] { background: #03363d; color: #ffffff; }
+#theme-menu button[data-theme="neo-4"] { background: #3447aa; color: #ffffff; }
+#theme-menu button[data-theme="neo-5"] { background: #141d38; color: #ffffff; }
+#theme-menu button[data-theme="neo-6"] { background: #000000; color: #ffffff; }
 
 /* ============================================================
    Neo Brutalism – Theme Variables
    ============================================================ */
 
 [data-theme="neo-1"] {          /* Violet */
-    --bg: #e4e4ff;
-    --bg-card: #f0f0ff;
-    --bg-code: #d4d4f8;
+    --bg: #ffffff;
+    --bg-card: #fafafa;
+    --bg-code: #eeeefd;
     --text: #0a0a2e;
     --text-muted: #3d3d80;
     --accent: #6260ff;
     --accent-hover: #4e4cd0;
-    --border: #000000;
+    --border: #6260ff;
     --neo-hi: #6260ff;
-    --neo-hi-text: #e4e4ff;
-    --neo-shadow: #000000;
+    --neo-hi-text: #ffffff;
+    --neo-shadow: #6260ff;
 }
 
 [data-theme="neo-2"] {          /* Forest */
-    --bg: #edfad8;
-    --bg-card: #f5fded;
-    --bg-code: #ddf2c4;
+    --bg: #ffffff;
+    --bg-card: #fafafa;
+    --bg-code: #f0f9e8;
     --text: #163300;
     --text-muted: #2a5500;
     --accent: #163300;
     --accent-hover: #0e2200;
-    --border: #000000;
+    --border: #163300;
     --neo-hi: #163300;
-    --neo-hi-text: #edfad8;
-    --neo-shadow: #000000;
+    --neo-hi-text: #ffffff;
+    --neo-shadow: #163300;
 }
 
 [data-theme="neo-3"] {          /* Teal */
-    --bg: #bdd9d7;
-    --bg-card: #cde6e4;
-    --bg-code: #a8cac8;
+    --bg: #ffffff;
+    --bg-card: #fafafa;
+    --bg-code: #e8f5f4;
     --text: #03363d;
     --text-muted: #1a5560;
     --accent: #03363d;
     --accent-hover: #024450;
-    --border: #000000;
+    --border: #03363d;
     --neo-hi: #03363d;
-    --neo-hi-text: #bdd9d7;
-    --neo-shadow: #000000;
+    --neo-hi-text: #ffffff;
+    --neo-shadow: #03363d;
 }
 
 [data-theme="neo-4"] {          /* Royal */
-    --bg: #fbeaeb;
-    --bg-card: #fff0f1;
-    --bg-code: #ecd4d5;
+    --bg: #ffffff;
+    --bg-card: #fafafa;
+    --bg-code: #eef0f9;
     --text: #0d0d0d;
     --text-muted: #3447aa;
     --accent: #3447aa;
     --accent-hover: #2a3990;
-    --border: #000000;
+    --border: #3447aa;
     --neo-hi: #3447aa;
-    --neo-hi-text: #fbeaeb;
-    --neo-shadow: #000000;
+    --neo-hi-text: #ffffff;
+    --neo-shadow: #3447aa;
 }
 
 [data-theme="neo-5"] {          /* Midnight */
-    --bg: #fefce8;
-    --bg-card: #fefff5;
-    --bg-code: #fef9c3;
+    --bg: #ffffff;
+    --bg-card: #fafafa;
+    --bg-code: #eef0f5;
     --text: #141d38;
     --text-muted: #2a3860;
     --accent: #141d38;
     --accent-hover: #0a1025;
-    --border: #000000;
+    --border: #141d38;
     --neo-hi: #141d38;
-    --neo-hi-text: #fefce8;
-    --neo-shadow: #000000;
+    --neo-hi-text: #ffffff;
+    --neo-shadow: #141d38;
 }
 
 [data-theme="neo-6"] {          /* Emerald */
-    --bg: #ecfdf5;
-    --bg-card: #f0fef9;
-    --bg-code: #d1fae5;
+    --bg: #ffffff;
+    --bg-card: #fafafa;
+    --bg-code: #f0fdf4;
     --text: #000000;
     --text-muted: #1a3a2e;
     --accent: #000000;
     --accent-hover: #222222;
     --border: #000000;
     --neo-hi: #000000;
-    --neo-hi-text: #ecfdf5;
+    --neo-hi-text: #ffffff;
     --neo-shadow: #000000;
 }
 
 /* Lock all neo themes to their defined colors regardless of OS dark mode */
 @media (prefers-color-scheme: dark) {
     [data-theme="neo-1"] {
-        --bg: #e4e4ff; --bg-card: #f0f0ff; --bg-code: #d4d4f8;
+        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #eeeefd;
         --text: #0a0a2e; --text-muted: #3d3d80;
-        --accent: #6260ff; --accent-hover: #4e4cd0; --border: #000000;
+        --accent: #6260ff; --accent-hover: #4e4cd0; --border: #6260ff;
+        --neo-hi: #6260ff; --neo-hi-text: #ffffff; --neo-shadow: #6260ff;
     }
     [data-theme="neo-2"] {
-        --bg: #edfad8; --bg-card: #f5fded; --bg-code: #ddf2c4;
+        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #f0f9e8;
         --text: #163300; --text-muted: #2a5500;
-        --accent: #163300; --accent-hover: #0e2200; --border: #000000;
+        --accent: #163300; --accent-hover: #0e2200; --border: #163300;
+        --neo-hi: #163300; --neo-hi-text: #ffffff; --neo-shadow: #163300;
     }
     [data-theme="neo-3"] {
-        --bg: #bdd9d7; --bg-card: #cde6e4; --bg-code: #a8cac8;
+        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #e8f5f4;
         --text: #03363d; --text-muted: #1a5560;
-        --accent: #03363d; --accent-hover: #024450; --border: #000000;
+        --accent: #03363d; --accent-hover: #024450; --border: #03363d;
+        --neo-hi: #03363d; --neo-hi-text: #ffffff; --neo-shadow: #03363d;
     }
     [data-theme="neo-4"] {
-        --bg: #fbeaeb; --bg-card: #fff0f1; --bg-code: #ecd4d5;
+        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #eef0f9;
         --text: #0d0d0d; --text-muted: #3447aa;
-        --accent: #3447aa; --accent-hover: #2a3990; --border: #000000;
+        --accent: #3447aa; --accent-hover: #2a3990; --border: #3447aa;
+        --neo-hi: #3447aa; --neo-hi-text: #ffffff; --neo-shadow: #3447aa;
     }
     [data-theme="neo-5"] {
-        --bg: #fefce8; --bg-card: #fefff5; --bg-code: #fef9c3;
+        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #eef0f5;
         --text: #141d38; --text-muted: #2a3860;
-        --accent: #141d38; --accent-hover: #0a1025; --border: #000000;
+        --accent: #141d38; --accent-hover: #0a1025; --border: #141d38;
+        --neo-hi: #141d38; --neo-hi-text: #ffffff; --neo-shadow: #141d38;
     }
     [data-theme="neo-6"] {
-        --bg: #ecfdf5; --bg-card: #f0fef9; --bg-code: #d1fae5;
+        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #f0fdf4;
         --text: #000000; --text-muted: #1a3a2e;
         --accent: #000000; --accent-hover: #222222; --border: #000000;
+        --neo-hi: #000000; --neo-hi-text: #ffffff; --neo-shadow: #000000;
     }
 }
 
@@ -784,8 +790,19 @@ a:hover {
     --radius: 0;
 }
 
+[data-theme^="neo"] h1,
+[data-theme^="neo"] h2,
+[data-theme^="neo"] h3,
+[data-theme^="neo"] h4,
+[data-theme^="neo"] h5,
+[data-theme^="neo"] h6 {
+    color: var(--neo-hi);
+}
+
 [data-theme^="neo"] a {
+    color: var(--neo-hi);
     text-decoration: underline;
+    text-decoration-color: var(--neo-hi);
     text-underline-offset: 3px;
     font-weight: 600;
     transition: none;
