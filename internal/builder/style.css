@@ -648,11 +648,11 @@ a:hover {
 }
 
 #theme-menu button[data-theme="neo-1"] { background: #6260ff; color: #e4e4ff; }
-#theme-menu button[data-theme="neo-2"] { background: #9fe870; color: #163300; }
+#theme-menu button[data-theme="neo-2"] { background: #edfad8; color: #163300; }
 #theme-menu button[data-theme="neo-3"] { background: #bdd9d7; color: #03363d; }
 #theme-menu button[data-theme="neo-4"] { background: #fbeaeb; color: #3447aa; }
-#theme-menu button[data-theme="neo-5"] { background: #fcdb32; color: #141d38; }
-#theme-menu button[data-theme="neo-6"] { background: #34e0a1; color: #000000; }
+#theme-menu button[data-theme="neo-5"] { background: #fefce8; color: #141d38; }
+#theme-menu button[data-theme="neo-6"] { background: #ecfdf5; color: #000000; }
 
 /* ============================================================
    Neo Brutalism – Theme Variables
@@ -673,16 +673,16 @@ a:hover {
 }
 
 [data-theme="neo-2"] {          /* Forest */
-    --bg: #9fe870;
-    --bg-card: #b8f28e;
-    --bg-code: #8dd060;
+    --bg: #edfad8;
+    --bg-card: #f5fded;
+    --bg-code: #ddf2c4;
     --text: #163300;
     --text-muted: #2a5500;
     --accent: #163300;
     --accent-hover: #0e2200;
     --border: #000000;
     --neo-hi: #163300;
-    --neo-hi-text: #9fe870;
+    --neo-hi-text: #edfad8;
     --neo-shadow: #000000;
 }
 
@@ -715,30 +715,30 @@ a:hover {
 }
 
 [data-theme="neo-5"] {          /* Midnight */
-    --bg: #fcdb32;
-    --bg-card: #fde968;
-    --bg-code: #f5cc18;
+    --bg: #fefce8;
+    --bg-card: #fefff5;
+    --bg-code: #fef9c3;
     --text: #141d38;
     --text-muted: #2a3860;
     --accent: #141d38;
     --accent-hover: #0a1025;
     --border: #000000;
     --neo-hi: #141d38;
-    --neo-hi-text: #fcdb32;
+    --neo-hi-text: #fefce8;
     --neo-shadow: #000000;
 }
 
 [data-theme="neo-6"] {          /* Emerald */
-    --bg: #34e0a1;
-    --bg-card: #5eeab5;
-    --bg-code: #28c890;
+    --bg: #ecfdf5;
+    --bg-card: #f0fef9;
+    --bg-code: #d1fae5;
     --text: #000000;
     --text-muted: #1a3a2e;
     --accent: #000000;
     --accent-hover: #222222;
     --border: #000000;
     --neo-hi: #000000;
-    --neo-hi-text: #34e0a1;
+    --neo-hi-text: #ecfdf5;
     --neo-shadow: #000000;
 }
 
@@ -750,7 +750,7 @@ a:hover {
         --accent: #6260ff; --accent-hover: #4e4cd0; --border: #000000;
     }
     [data-theme="neo-2"] {
-        --bg: #9fe870; --bg-card: #b8f28e; --bg-code: #8dd060;
+        --bg: #edfad8; --bg-card: #f5fded; --bg-code: #ddf2c4;
         --text: #163300; --text-muted: #2a5500;
         --accent: #163300; --accent-hover: #0e2200; --border: #000000;
     }
@@ -765,12 +765,12 @@ a:hover {
         --accent: #3447aa; --accent-hover: #2a3990; --border: #000000;
     }
     [data-theme="neo-5"] {
-        --bg: #fcdb32; --bg-card: #fde968; --bg-code: #f5cc18;
+        --bg: #fefce8; --bg-card: #fefff5; --bg-code: #fef9c3;
         --text: #141d38; --text-muted: #2a3860;
         --accent: #141d38; --accent-hover: #0a1025; --border: #000000;
     }
     [data-theme="neo-6"] {
-        --bg: #34e0a1; --bg-card: #5eeab5; --bg-code: #28c890;
+        --bg: #ecfdf5; --bg-card: #f0fef9; --bg-code: #d1fae5;
         --text: #000000; --text-muted: #1a3a2e;
         --accent: #000000; --accent-hover: #222222; --border: #000000;
     }
