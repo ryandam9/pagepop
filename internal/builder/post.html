@@ -17,6 +17,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Overpass+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="{{.CSSHref}}" />
+    <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
 </head>
 
 <body>
@@ -39,6 +40,19 @@
         </article>
     </main>
 
+    <script src="https://cdn.datatables.net/2.2.2/js/dataTables.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            document.querySelectorAll('.post-body table').forEach(function (table) {
+                new DataTable(table, {
+                    paging: true,
+                    searching: true,
+                    ordering: true,
+                    pageLength: 10
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>
