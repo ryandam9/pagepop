@@ -114,6 +114,23 @@ This is a **bold** test.`
 		t.Fatalf("Site() failed: %v", err)
 	}
 
+	// With embed-styles off, posts must link style.css via a path relative to
+	// their own directory so the blog works when served from a subdirectory.
+	noEmbedDir := filepath.Join(tempDir, "blog-noembed")
+	if err := Site(noEmbedDir, configPath, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() (no embed) failed: %v", err)
+	}
+	noEmbedHTML, err := os.ReadFile(filepath.Join(noEmbedDir, "2024/01/01", "post", "index.html"))
+	if err != nil {
+		t.Fatalf("reading no-embed post: %v", err)
+	}
+	if !strings.Contains(string(noEmbedHTML), `href="../../../../style.css"`) {
+		t.Errorf("post does not link style.css with a relative path; got:\n%s", noEmbedHTML)
+	}
+	if strings.Contains(string(noEmbedHTML), `href="/style.css"`) {
+		t.Errorf("post still links style.css with a root-absolute path")
+	}
+
 	if _, err := os.Stat(filepath.Join(outDir, "blog_entries.html")); os.IsNotExist(err) {
 		t.Errorf("listing blog_entries.html not generated")
 	}
