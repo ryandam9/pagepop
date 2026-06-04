@@ -514,7 +514,7 @@ func renderMarkdown(md string) template.HTML {
 	return template.HTML(transformCallouts(buf.String()))
 }
 
-var calloutRe = regexp.MustCompile(`(?si)<blockquote>\s*<p>\[!(info|warning|tip|success|note|danger|error)\]\s*(.*?)</p>(.*?)</blockquote>`)
+var calloutRe = regexp.MustCompile(`(?si)<blockquote>\s*<p>\[!(info|warning|tip|success|note|danger|error|important|caution)\]\s*(.*?)</p>(.*?)</blockquote>`)
 
 func transformCallouts(html string) string {
 	return calloutRe.ReplaceAllStringFunc(html, func(match string) string {

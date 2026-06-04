@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -135,5 +136,31 @@ This is a **bold** test.`
 	}
 	if _, err := os.Stat(filepath.Join(postDir, "dummy.png")); os.IsNotExist(err) {
 		t.Errorf("image not copied to post dir")
+	}
+}
+
+func TestTransformCallouts(t *testing.T) {
+	cases := []struct {
+		name      string
+		md        string
+		wantClass string
+	}{
+		{"note", "> [!NOTE]\n> A note.\n", "callout callout-note"},
+		{"tip", "> [!TIP]\n> A tip.\n", "callout callout-tip"},
+		{"important", "> [!IMPORTANT]\n> Important info.\n", "callout callout-important"},
+		{"warning", "> [!WARNING]\n> A warning.\n", "callout callout-warning"},
+		{"caution", "> [!CAUTION]\n> Be careful.\n", "callout callout-caution"},
+		{"lowercase", "> [!warning]\n> lower.\n", "callout callout-warning"},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			out := string(renderMarkdown(tc.md))
+			if !strings.Contains(out, `class="`+tc.wantClass+`"`) {
+				t.Errorf("expected callout class %q, got: %s", tc.wantClass, out)
+			}
+			if strings.Contains(out, "[!") {
+				t.Errorf("callout marker not stripped, got: %s", out)
+			}
+		})
 	}
 }
