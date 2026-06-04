@@ -38,11 +38,19 @@
                 <time><i class="fa-regular fa-calendar"></i> {{.Meta.Date.Format "January 2, 2006"}}</time>
             </header>
             {{if .TOC}}
-            {{.TOC}}
-            {{end}}
+            <div class="post-layout">
+                <aside class="toc-sidebar">
+                    {{.TOC}}
+                </aside>
+                <div class="post-body">
+                    {{.Body}}
+                </div>
+            </div>
+            {{else}}
             <div class="post-body">
                 {{.Body}}
             </div>
+            {{end}}
         </article>
     </main>
 
