@@ -567,14 +567,18 @@ a:hover {
 }
 
 /* ============================================================
-   Theme Toggle Button
+   Theme Picker
    ============================================================ */
 
-#theme-toggle {
+#theme-picker {
     position: fixed;
     bottom: 1.5rem;
     right: 1.5rem;
     z-index: 1000;
+}
+
+#theme-toggle {
+    display: block;
     padding: 0.5rem 0.9rem;
     background: var(--bg-card);
     color: var(--text-muted);
@@ -595,252 +599,418 @@ a:hover {
     border-color: var(--accent);
 }
 
-/* ============================================================
-   Neo Brutalism Theme  (activated via data-theme="neo" on <html>)
-   ============================================================ */
-
-[data-theme="neo"] {
-    --bg: #ffffff;
-    --bg-card: #f5f5f5;
-    --bg-code: #e8e8e8;
-    --text: #000000;
-    --text-muted: #3a3a3a;
-    --accent: #0000ee;
-    --accent-hover: #0000bb;
-    --border: #000000;
-    --radius: 0;
+#theme-menu {
+    position: absolute;
+    bottom: calc(100% + 0.5rem);
+    right: 0;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: calc(var(--radius) + 4px);
+    padding: 0.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.3rem;
+    min-width: 130px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
-/* Keep neo theme as light even when OS prefers dark */
+#theme-menu[hidden] {
+    display: none;
+}
+
+#theme-menu button {
+    padding: 0.45rem 0.75rem;
+    border: 2px solid transparent;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    text-align: left;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-family: inherit;
+    transition: opacity 0.1s;
+}
+
+#theme-menu button:hover {
+    opacity: 0.8;
+}
+
+#theme-menu button.active {
+    outline: 3px solid currentColor;
+    outline-offset: 2px;
+}
+
+#theme-menu button[data-theme=""] {
+    background: var(--bg);
+    color: var(--text);
+    border-color: var(--border);
+}
+
+#theme-menu button[data-theme="neo-1"] { background: #6260ff; color: #e4e4ff; }
+#theme-menu button[data-theme="neo-2"] { background: #163300; color: #9fe870; }
+#theme-menu button[data-theme="neo-3"] { background: #03363d; color: #bdd9d7; }
+#theme-menu button[data-theme="neo-4"] { background: #3447aa; color: #fbeaeb; }
+#theme-menu button[data-theme="neo-5"] { background: #141d38; color: #fcdb32; }
+#theme-menu button[data-theme="neo-6"] { background: #000000; color: #34e0a1; }
+
+/* ============================================================
+   Neo Brutalism – Theme Variables
+   ============================================================ */
+
+[data-theme="neo-1"] {          /* Violet */
+    --bg: #e4e4ff;
+    --bg-card: #f0f0ff;
+    --bg-code: #d4d4f8;
+    --text: #0a0a2e;
+    --text-muted: #3d3d80;
+    --accent: #6260ff;
+    --accent-hover: #4e4cd0;
+    --border: #000000;
+    --neo-hi: #6260ff;
+    --neo-hi-text: #e4e4ff;
+    --neo-shadow: #000000;
+}
+
+[data-theme="neo-2"] {          /* Forest */
+    --bg: #163300;
+    --bg-card: #1e4400;
+    --bg-code: #0f2500;
+    --text: #9fe870;
+    --text-muted: #7bc252;
+    --accent: #9fe870;
+    --accent-hover: #8dd660;
+    --border: #9fe870;
+    --neo-hi: #9fe870;
+    --neo-hi-text: #163300;
+    --neo-shadow: #9fe870;
+}
+
+[data-theme="neo-3"] {          /* Teal */
+    --bg: #bdd9d7;
+    --bg-card: #cde6e4;
+    --bg-code: #a8cac8;
+    --text: #03363d;
+    --text-muted: #1a5560;
+    --accent: #03363d;
+    --accent-hover: #024450;
+    --border: #000000;
+    --neo-hi: #03363d;
+    --neo-hi-text: #bdd9d7;
+    --neo-shadow: #000000;
+}
+
+[data-theme="neo-4"] {          /* Royal */
+    --bg: #fbeaeb;
+    --bg-card: #fff0f1;
+    --bg-code: #ecd4d5;
+    --text: #0d0d0d;
+    --text-muted: #3447aa;
+    --accent: #3447aa;
+    --accent-hover: #2a3990;
+    --border: #000000;
+    --neo-hi: #3447aa;
+    --neo-hi-text: #fbeaeb;
+    --neo-shadow: #000000;
+}
+
+[data-theme="neo-5"] {          /* Midnight */
+    --bg: #141d38;
+    --bg-card: #1c2748;
+    --bg-code: #0e1628;
+    --text: #fcdb32;
+    --text-muted: #c8af28;
+    --accent: #fcdb32;
+    --accent-hover: #e8c820;
+    --border: #fcdb32;
+    --neo-hi: #fcdb32;
+    --neo-hi-text: #141d38;
+    --neo-shadow: #fcdb32;
+}
+
+[data-theme="neo-6"] {          /* Emerald */
+    --bg: #000000;
+    --bg-card: #0d0d0d;
+    --bg-code: #111111;
+    --text: #34e0a1;
+    --text-muted: #28b882;
+    --accent: #34e0a1;
+    --accent-hover: #28c890;
+    --border: #34e0a1;
+    --neo-hi: #34e0a1;
+    --neo-hi-text: #000000;
+    --neo-shadow: #34e0a1;
+}
+
+/* Lock all neo themes to their defined colors regardless of OS dark mode */
 @media (prefers-color-scheme: dark) {
-    [data-theme="neo"] {
-        --bg: #ffffff;
-        --bg-card: #f5f5f5;
-        --bg-code: #e8e8e8;
-        --text: #000000;
-        --text-muted: #3a3a3a;
-        --accent: #0000ee;
-        --accent-hover: #0000bb;
-        --border: #000000;
+    [data-theme="neo-1"] {
+        --bg: #e4e4ff; --bg-card: #f0f0ff; --bg-code: #d4d4f8;
+        --text: #0a0a2e; --text-muted: #3d3d80;
+        --accent: #6260ff; --accent-hover: #4e4cd0; --border: #000000;
+    }
+    [data-theme="neo-2"] {
+        --bg: #163300; --bg-card: #1e4400; --bg-code: #0f2500;
+        --text: #9fe870; --text-muted: #7bc252;
+        --accent: #9fe870; --accent-hover: #8dd660; --border: #9fe870;
+    }
+    [data-theme="neo-3"] {
+        --bg: #bdd9d7; --bg-card: #cde6e4; --bg-code: #a8cac8;
+        --text: #03363d; --text-muted: #1a5560;
+        --accent: #03363d; --accent-hover: #024450; --border: #000000;
+    }
+    [data-theme="neo-4"] {
+        --bg: #fbeaeb; --bg-card: #fff0f1; --bg-code: #ecd4d5;
+        --text: #0d0d0d; --text-muted: #3447aa;
+        --accent: #3447aa; --accent-hover: #2a3990; --border: #000000;
+    }
+    [data-theme="neo-5"] {
+        --bg: #141d38; --bg-card: #1c2748; --bg-code: #0e1628;
+        --text: #fcdb32; --text-muted: #c8af28;
+        --accent: #fcdb32; --accent-hover: #e8c820; --border: #fcdb32;
+    }
+    [data-theme="neo-6"] {
+        --bg: #000000; --bg-card: #0d0d0d; --bg-code: #111111;
+        --text: #34e0a1; --text-muted: #28b882;
+        --accent: #34e0a1; --accent-hover: #28c890; --border: #34e0a1;
     }
 }
 
-[data-theme="neo"] a {
+/* ============================================================
+   Neo Brutalism – Shared Structural & Component Styles
+   ============================================================ */
+
+[data-theme^="neo"] {
+    --radius: 0;
+}
+
+[data-theme^="neo"] a {
     text-decoration: underline;
     text-underline-offset: 3px;
     font-weight: 600;
     transition: none;
 }
 
-[data-theme="neo"] a:hover {
+[data-theme^="neo"] a:hover {
     text-decoration-thickness: 2px;
 }
 
 /* Nav */
-[data-theme="neo"] .nav {
-    background: #ffd600 !important;
-    border-bottom: 3px solid #000000;
+[data-theme^="neo"] .nav {
+    background: var(--neo-hi) !important;
+    border-bottom: 3px solid var(--neo-shadow);
     backdrop-filter: none;
 }
 
-[data-theme="neo"] .nav-logo {
-    color: #000000 !important;
+[data-theme^="neo"] .nav-logo {
+    color: var(--neo-hi-text) !important;
 }
 
-[data-theme="neo"] .nav-links a {
-    color: #000000 !important;
+[data-theme^="neo"] .nav-links a {
+    color: var(--neo-hi-text) !important;
     font-weight: 700;
 }
 
-[data-theme="neo"] .nav-links a:hover,
-[data-theme="neo"] .nav-links a.active {
-    color: #000000 !important;
+[data-theme^="neo"] .nav-links a:hover,
+[data-theme^="neo"] .nav-links a.active {
+    color: var(--neo-hi-text) !important;
     text-decoration: underline;
 }
 
 /* Listing */
-[data-theme="neo"] .listing h1 {
-    border-bottom: 4px solid #000000;
+[data-theme^="neo"] .listing h1 {
+    border-bottom: 4px solid var(--neo-shadow);
     padding-bottom: 1rem;
 }
 
-[data-theme="neo"] .post-item {
-    border: 2px solid #000000;
+[data-theme^="neo"] .post-item {
+    border: 2px solid var(--neo-shadow);
     padding: 1.5rem;
     margin-bottom: 1rem;
-    border-bottom: 2px solid #000000;
+    border-bottom: 2px solid var(--neo-shadow);
     transition: transform 0.08s, box-shadow 0.08s;
 }
 
-[data-theme="neo"] .post-item:last-child {
-    border-bottom: 2px solid #000000;
+[data-theme^="neo"] .post-item:last-child {
+    border-bottom: 2px solid var(--neo-shadow);
 }
 
-[data-theme="neo"] .post-item:hover {
+[data-theme^="neo"] .post-item:hover {
     transform: translate(-3px, -3px);
-    box-shadow: 6px 6px 0 #000000;
-    background: #fffbdc;
+    box-shadow: 6px 6px 0 var(--neo-shadow);
+    background: var(--neo-hi);
 }
 
-[data-theme="neo"] .post-title {
+[data-theme^="neo"] .post-item:hover .post-title,
+[data-theme^="neo"] .post-item:hover .post-desc,
+[data-theme^="neo"] .post-item:hover time {
+    color: var(--neo-hi-text);
+}
+
+[data-theme^="neo"] .post-title {
     font-weight: 900;
-    color: #000000;
+    color: var(--text);
     transition: none;
 }
 
-[data-theme="neo"] .post-link:hover .post-title {
-    color: var(--accent);
-}
-
 /* Tags */
-[data-theme="neo"] .tag {
-    background: #ffd600;
-    color: #000000;
-    border: 2px solid #000000;
+[data-theme^="neo"] .tag {
+    background: var(--neo-hi);
+    color: var(--neo-hi-text);
+    border: 2px solid var(--neo-shadow);
     border-radius: 0;
     font-weight: 700;
     transition: none;
 }
 
-[data-theme="neo"] .post-item:hover .tag {
-    background: #000000;
-    color: #ffd600;
-    border-color: #000000;
+[data-theme^="neo"] .post-item:hover .tag {
+    background: var(--neo-hi-text);
+    color: var(--neo-hi);
+    border-color: var(--neo-shadow);
 }
 
 /* Post header */
-[data-theme="neo"] .post-header h1 {
-    border-bottom: 4px solid #000000;
+[data-theme^="neo"] .post-header h1 {
+    border-bottom: 4px solid var(--neo-shadow);
     padding-bottom: 1rem;
 }
 
 /* Post body */
-[data-theme="neo"] .post-body h2 {
-    border-bottom: 3px solid #000000;
+[data-theme^="neo"] .post-body h2 {
+    border-bottom: 3px solid var(--neo-shadow);
     padding-bottom: 0.4rem;
 }
 
-[data-theme="neo"] .post-body blockquote {
-    border-left: 6px solid #000000;
-    background: #ffd600;
-    color: #000000;
+[data-theme^="neo"] .post-body blockquote {
+    border-left: 6px solid var(--neo-shadow);
+    background: var(--neo-hi);
+    color: var(--neo-hi-text);
     font-style: normal;
     font-weight: 600;
     border-radius: 0;
-    box-shadow: 4px 4px 0 #000000;
+    box-shadow: 4px 4px 0 var(--neo-shadow);
 }
 
-[data-theme="neo"] .post-body pre {
-    border: 3px solid #000000;
+[data-theme^="neo"] .post-body pre {
+    border: 3px solid var(--neo-shadow);
     border-radius: 0;
-    box-shadow: 5px 5px 0 #000000;
-    background: #f0f0f0 !important;
+    box-shadow: 5px 5px 0 var(--neo-shadow);
+    background: var(--bg-code) !important;
 }
 
-[data-theme="neo"] .post-body code {
-    border: 1px solid #000000;
+[data-theme^="neo"] .post-body code {
+    border: 1px solid var(--neo-shadow);
     border-radius: 0;
-    background: #e8e8e8;
+    background: var(--bg-code);
 }
 
-[data-theme="neo"] .post-body img {
-    border: 3px solid #000000;
+[data-theme^="neo"] .post-body img {
+    border: 3px solid var(--neo-shadow);
     border-radius: 0;
-    box-shadow: 6px 6px 0 #000000;
+    box-shadow: 6px 6px 0 var(--neo-shadow);
 }
 
 /* Tables */
-[data-theme="neo"] .post-body table.dataTable th,
-[data-theme="neo"] .post-body table.dataTable td {
-    border: 2px solid #000000;
+[data-theme^="neo"] .post-body table.dataTable th,
+[data-theme^="neo"] .post-body table.dataTable td {
+    border: 2px solid var(--neo-shadow);
 }
 
-[data-theme="neo"] .post-body table.dataTable thead th {
-    background: #ffd600;
-    color: #000000;
+[data-theme^="neo"] .post-body table.dataTable thead th {
+    background: var(--neo-hi);
+    color: var(--neo-hi-text);
 }
 
-[data-theme="neo"] .post-body table.dataTable tbody tr:nth-child(even) {
-    background: #f5f5f5;
+[data-theme^="neo"] .post-body table.dataTable tbody tr:nth-child(even) {
+    background: var(--bg-card);
 }
 
-[data-theme="neo"] .post-body .dataTables_filter input,
-[data-theme="neo"] .post-body .dataTables_length select {
-    border: 2px solid #000000;
+[data-theme^="neo"] .post-body .dataTables_filter input,
+[data-theme^="neo"] .post-body .dataTables_length select {
+    border: 2px solid var(--neo-shadow);
     border-radius: 0;
-    background: #ffffff;
-    color: #000000;
+    background: var(--bg);
+    color: var(--text);
 }
 
-[data-theme="neo"] .post-body .dataTables_paginate .paginate_button {
-    border: 2px solid #000000 !important;
+[data-theme^="neo"] .post-body .dataTables_paginate .paginate_button {
+    border: 2px solid var(--neo-shadow) !important;
     border-radius: 0;
-    background: #ffffff;
-    color: #000000 !important;
-    box-shadow: 2px 2px 0 #000000;
+    background: var(--bg);
+    color: var(--text) !important;
+    box-shadow: 2px 2px 0 var(--neo-shadow);
 }
 
-[data-theme="neo"] .post-body .dataTables_paginate .paginate_button.current,
-[data-theme="neo"] .post-body .dataTables_paginate .paginate_button:hover {
-    background: #ffd600 !important;
-    color: #000000 !important;
+[data-theme^="neo"] .post-body .dataTables_paginate .paginate_button.current,
+[data-theme^="neo"] .post-body .dataTables_paginate .paginate_button:hover {
+    background: var(--neo-hi) !important;
+    color: var(--neo-hi-text) !important;
 }
 
 /* TOC */
-[data-theme="neo"] .toc {
-    border: 3px solid #000000;
+[data-theme^="neo"] .toc {
+    border: 3px solid var(--neo-shadow);
     border-radius: 0;
-    box-shadow: 4px 4px 0 #000000;
-    background: #f5f5f5;
+    box-shadow: 4px 4px 0 var(--neo-shadow);
+    background: var(--bg-card);
 }
 
-[data-theme="neo"] .toc::before {
-    color: #000000;
+[data-theme^="neo"] .toc::before {
+    color: var(--text);
 }
 
-/* Callouts — restore light-mode colors when OS is in dark mode */
+/* Callouts */
+[data-theme^="neo"] .callout {
+    border: 2px solid var(--neo-shadow);
+    border-radius: 0;
+    box-shadow: 3px 3px 0 var(--neo-shadow);
+}
+
+/* Restore light-mode callout colors when OS prefers dark */
 @media (prefers-color-scheme: dark) {
-    [data-theme="neo"] .callout { background: inherit; }
-    [data-theme="neo"] .callout-info { background: #eff6ff; border-left-color: #3b82f6; color: #1e40af; }
-    [data-theme="neo"] .callout-warning { background: #fffbeb; border-left-color: #f59e0b; color: #92400e; }
-    [data-theme="neo"] .callout-tip { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
-    [data-theme="neo"] .callout-success { background: #ecfdf5; border-left-color: #10b981; color: #065f46; }
-    [data-theme="neo"] .callout-note { background: #f8fafc; border-left-color: #64748b; color: #334155; }
-    [data-theme="neo"] .callout-danger,
-    [data-theme="neo"] .callout-error { background: #fef2f2; border-left-color: #ef4444; color: #991b1b; }
-}
-
-[data-theme="neo"] .callout {
-    border: 2px solid #000000;
-    border-radius: 0;
-    box-shadow: 3px 3px 0 #000000;
+    [data-theme^="neo"] .callout { background: inherit; }
+    [data-theme^="neo"] .callout-info { background: #eff6ff; border-left-color: #3b82f6; color: #1e40af; }
+    [data-theme^="neo"] .callout-warning { background: #fffbeb; border-left-color: #f59e0b; color: #92400e; }
+    [data-theme^="neo"] .callout-tip { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
+    [data-theme^="neo"] .callout-success { background: #ecfdf5; border-left-color: #10b981; color: #065f46; }
+    [data-theme^="neo"] .callout-note { background: #f8fafc; border-left-color: #64748b; color: #334155; }
+    [data-theme^="neo"] .callout-danger,
+    [data-theme^="neo"] .callout-error { background: #fef2f2; border-left-color: #ef4444; color: #991b1b; }
 }
 
 /* Footer */
-[data-theme="neo"] .footer {
-    border-top: 3px solid #000000;
+[data-theme^="neo"] .footer {
+    border-top: 3px solid var(--neo-shadow);
     font-weight: 600;
 }
 
-/* Toggle button — neo state */
-[data-theme="neo"] #theme-toggle {
-    background: #ffd600;
-    color: #000000;
-    border: 2px solid #000000;
+/* Theme toggle – neo state */
+[data-theme^="neo"] #theme-toggle {
+    background: var(--neo-hi);
+    color: var(--neo-hi-text);
+    border: 2px solid var(--neo-shadow);
     border-radius: 0;
-    box-shadow: 3px 3px 0 #000000;
+    box-shadow: 3px 3px 0 var(--neo-shadow);
     transition: transform 0.08s, box-shadow 0.08s;
 }
 
-[data-theme="neo"] #theme-toggle:hover {
-    color: #000000;
-    border-color: #000000;
-    background: #ffd600;
+[data-theme^="neo"] #theme-toggle:hover {
+    color: var(--neo-hi-text);
+    border-color: var(--neo-shadow);
+    background: var(--neo-hi);
     transform: translate(-2px, -2px);
-    box-shadow: 5px 5px 0 #000000;
+    box-shadow: 5px 5px 0 var(--neo-shadow);
 }
 
-[data-theme="neo"] #theme-toggle:active {
+[data-theme^="neo"] #theme-toggle:active {
     transform: translate(2px, 2px);
-    box-shadow: 1px 1px 0 #000000;
+    box-shadow: 1px 1px 0 var(--neo-shadow);
+}
+
+/* Theme menu – neo state */
+[data-theme^="neo"] #theme-menu {
+    border: 2px solid var(--neo-shadow);
+    border-radius: 0;
+    box-shadow: 4px 4px 0 var(--neo-shadow);
+    background: var(--bg-card);
 }

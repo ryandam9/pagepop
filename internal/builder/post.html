@@ -19,7 +19,7 @@
     <link rel="stylesheet" href="{{.CSSHref}}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <script>(function(){try{var t=localStorage.getItem('pagepop-theme');if(t==='neo')document.documentElement.setAttribute('data-theme','neo');}catch(e){}})();</script>
+    <script>(function(){try{var t=localStorage.getItem('pagepop-theme');if(t&&/^neo-[1-6]$/.test(t))document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 
 <body>
@@ -68,28 +68,42 @@
             });
         });
     </script>
-    <button id="theme-toggle" aria-label="Toggle theme"></button>
+    <div id="theme-picker">
+        <button id="theme-toggle" aria-label="Choose theme"><i class="fa-solid fa-palette"></i> Theme</button>
+        <div id="theme-menu" hidden>
+            <button data-theme="">Default</button>
+            <button data-theme="neo-1">Violet</button>
+            <button data-theme="neo-2">Forest</button>
+            <button data-theme="neo-3">Teal</button>
+            <button data-theme="neo-4">Royal</button>
+            <button data-theme="neo-5">Midnight</button>
+            <button data-theme="neo-6">Emerald</button>
+        </div>
+    </div>
     <script>
         (function () {
-            var btn = document.getElementById('theme-toggle');
+            var toggle = document.getElementById('theme-toggle');
+            var menu = document.getElementById('theme-menu');
             var html = document.documentElement;
-            function sync() {
-                var isNeo = html.getAttribute('data-theme') === 'neo';
-                btn.innerHTML = isNeo
-                    ? '<i class="fa-solid fa-circle-half-stroke"></i> Default'
-                    : '<i class="fa-solid fa-palette"></i> Neo Brutalism';
+            function current() { return html.getAttribute('data-theme') || ''; }
+            function applyTheme(t) {
+                if (t) html.setAttribute('data-theme', t);
+                else html.removeAttribute('data-theme');
+                try { if (t) localStorage.setItem('pagepop-theme', t); else localStorage.removeItem('pagepop-theme'); } catch(e) {}
+                syncActive();
             }
-            sync();
-            btn.addEventListener('click', function () {
-                if (html.getAttribute('data-theme') === 'neo') {
-                    html.removeAttribute('data-theme');
-                    try { localStorage.removeItem('pagepop-theme'); } catch (e) {}
-                } else {
-                    html.setAttribute('data-theme', 'neo');
-                    try { localStorage.setItem('pagepop-theme', 'neo'); } catch (e) {}
-                }
-                sync();
+            function syncActive() {
+                var t = current();
+                menu.querySelectorAll('button[data-theme]').forEach(function(b) {
+                    b.classList.toggle('active', b.getAttribute('data-theme') === t);
+                });
+            }
+            toggle.addEventListener('click', function(e) { e.stopPropagation(); menu.hidden = !menu.hidden; });
+            menu.querySelectorAll('button[data-theme]').forEach(function(b) {
+                b.addEventListener('click', function(e) { e.stopPropagation(); applyTheme(b.getAttribute('data-theme')); menu.hidden = true; });
             });
+            document.addEventListener('click', function() { menu.hidden = true; });
+            syncActive();
         })();
     </script>
 </body>
