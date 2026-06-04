@@ -63,6 +63,11 @@ Then run:
 | `--config` | `md_files.yml` | Path to the YAML file listing Markdown files |
 | `--output` | `blog` | Output directory (created if it doesn't exist) |
 | `--embed-styles` | `false` | Copy `style.css` into each post directory for standalone pages |
+| `--toc-top` | `false` | Render the table of contents at the top of the post instead of in a left sidebar on large screens |
+
+By default the table of contents sits in a sticky left sidebar on wide
+screens (≥1200px) and collapses above the content on narrower ones. Pass
+`--toc-top` to always place it at the top, right after the title.
 
 With `--embed-styles`, each post becomes fully self-contained:
 
