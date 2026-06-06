@@ -577,7 +577,7 @@ func writeRSS(outputDir string, posts []post, siteCfg SiteConfig) error {
 	}
 
 	outPath := filepath.Join(outputDir, "feed.xml")
-	return os.WriteFile(outPath, buf.Bytes(), 0644)
+	return writeFileIfChanged(outPath, buf.Bytes())
 }
 
 const sitemapTemplate = `<?xml version="1.0" encoding="UTF-8"?>
@@ -612,5 +612,15 @@ func writeSitemap(outputDir string, posts []post, siteCfg SiteConfig) error {
 	}
 
 	outPath := filepath.Join(outputDir, "sitemap.xml")
-	return os.WriteFile(outPath, buf.Bytes(), 0644)
+	return writeFileIfChanged(outPath, buf.Bytes())
+}
+
+// writeFileIfChanged writes data to path only when the existing file differs,
+// avoiding mtime churn that would force tools like `aws s3 sync` to re-upload
+// unchanged files on every build.
+func writeFileIfChanged(path string, data []byte) error {
+	if existing, err := os.ReadFile(path); err == nil && bytes.Equal(existing, data) {
+		return nil
+	}
+	return os.WriteFile(path, data, 0644)
 }
