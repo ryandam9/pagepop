@@ -31,7 +31,7 @@
 }
 
 body {
-    font-family: 'Google Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
     color: var(--text);
     line-height: 1.8;
@@ -258,7 +258,6 @@ a:hover {
 
 .post-body pre {
     font-family: 'Overpass Mono', monospace;
-    background: var(--bg-code) !important;
     border: 1px solid var(--border);
     border-radius: var(--radius);
     padding: 1.5rem;
@@ -352,7 +351,7 @@ a:hover {
     border-left: 4px solid;
 }
 
-.callout > :last-child {
+.callout> :last-child {
     margin-bottom: 0;
 }
 
@@ -370,42 +369,60 @@ a:hover {
     border-left-color: #3b82f6;
     color: #1e40af;
 }
-.callout-info::before { content: "Info"; }
+
+.callout-info::before {
+    content: "Info";
+}
 
 .callout-warning {
     background: #fffbeb;
     border-left-color: #f59e0b;
     color: #92400e;
 }
-.callout-warning::before { content: "Warning"; }
+
+.callout-warning::before {
+    content: "Warning";
+}
 
 .callout-tip {
     background: #f0fdf4;
     border-left-color: #22c55e;
     color: #166534;
 }
-.callout-tip::before { content: "Tip"; }
+
+.callout-tip::before {
+    content: "Tip";
+}
 
 .callout-success {
     background: #ecfdf5;
     border-left-color: #10b981;
     color: #065f46;
 }
-.callout-success::before { content: "Success"; }
+
+.callout-success::before {
+    content: "Success";
+}
 
 .callout-note {
     background: #f8fafc;
     border-left-color: #64748b;
     color: #334155;
 }
-.callout-note::before { content: "Note"; }
+
+.callout-note::before {
+    content: "Note";
+}
 
 .callout-important {
     background: #f5f3ff;
     border-left-color: #8b5cf6;
     color: #5b21b6;
 }
-.callout-important::before { content: "Important"; }
+
+.callout-important::before {
+    content: "Important";
+}
 
 .callout-danger,
 .callout-error,
@@ -414,9 +431,15 @@ a:hover {
     border-left-color: #ef4444;
     color: #991b1b;
 }
+
 .callout-danger::before,
-.callout-error::before { content: "Danger"; }
-.callout-caution::before { content: "Caution"; }
+.callout-error::before {
+    content: "Danger";
+}
+
+.callout-caution::before {
+    content: "Caution";
+}
 
 @media (prefers-color-scheme: dark) {
     .callout {
@@ -495,13 +518,21 @@ a:hover {
     margin: 0;
 }
 
-.toc li + li {
+.toc li+li {
     margin-top: 0.2rem;
 }
 
-.toc-h2 { padding-left: 0; }
-.toc-h3 { padding-left: 1rem; }
-.toc-h4 { padding-left: 2rem; }
+.toc-h2 {
+    padding-left: 0;
+}
+
+.toc-h3 {
+    padding-left: 1rem;
+}
+
+.toc-h4 {
+    padding-left: 2rem;
+}
 
 .toc a {
     color: var(--text-muted);
@@ -522,6 +553,7 @@ a:hover {
 }
 
 @media (min-width: 1200px) {
+
     /* Sidebar layout — only when the TOC is set to the side */
     .post:has(.post-layout.toc-side) {
         max-width: 1080px;
@@ -626,7 +658,7 @@ a:hover {
     display: flex;
     flex-direction: column;
     gap: 0.3rem;
-    min-width: 130px;
+    min-width: 240px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
 }
 
@@ -663,139 +695,248 @@ a:hover {
     border-color: var(--border);
 }
 
-#theme-menu button[data-theme="neo-1"] { background: #6260ff; color: #ffffff; }
-#theme-menu button[data-theme="neo-2"] { background: #163300; color: #ffffff; }
-#theme-menu button[data-theme="neo-3"] { background: #03363d; color: #ffffff; }
-#theme-menu button[data-theme="neo-4"] { background: #3447aa; color: #ffffff; }
-#theme-menu button[data-theme="neo-5"] { background: #141d38; color: #ffffff; }
-#theme-menu button[data-theme="neo-6"] { background: #000000; color: #ffffff; }
+#theme-menu button[data-theme="neo-spotted-pardalote"] {
+    background: #cb0300;
+    color: #feca00;
+}
+
+#theme-menu button[data-theme="neo-plains-wanderer"] {
+    background: #ac570f;
+    color: #0d0403;
+}
+
+#theme-menu button[data-theme="neo-rainbow-bee-eater"] {
+    background: #007CBF;
+    color: #EDD03E;
+}
+
+#theme-menu button[data-theme="neo-rose-crowned-fruit-dove"] {
+    background: #014820;
+    color: #F5DC83;
+}
+
+#theme-menu button[data-theme="neo-eastern-rosella"] {
+    background: #cd3122;
+    color: #bee183;
+}
+
+#theme-menu button[data-theme="neo-olive-backed-oriole"] {
+    background: #8a3223;
+    color: #d0cfe9;
+}
+
+#theme-menu button[data-theme="neo-princess-parrot"] {
+    background: #cf2236;
+    color: #afbe9f;
+}
+
+#theme-menu button[data-theme="neo-superb-fairywren"] {
+    background: #B03F05;
+    color: #D9C4A7;
+}
+
+#theme-menu button[data-theme="neo-southern-cassowary"] {
+    background: #0169C4;
+    color: #09090C;
+}
+
+#theme-menu button[data-theme="neo-eastern-yellow-robin"] {
+    background: #E19E00;
+    color: #201B1E;
+}
+
+#theme-menu button[data-theme="neo-galah"] {
+    background: #D05478;
+    color: #FFD2CF;
+}
+
+#theme-menu button[data-theme="neo-blue-winged-kookaburra"] {
+    background: #02407c;
+    color: #b5effb;
+}
 
 /* ============================================================
    Neo Brutalism – Theme Variables
    ============================================================ */
 
-[data-theme="neo-1"] {          /* Violet */
-    --bg: #ffffff;
-    --bg-card: #fafafa;
-    --bg-code: #eeeefd;
-    --text: #0a0a2e;
-    --text-muted: #3d3d80;
-    --accent: #6260ff;
-    --accent-hover: #4e4cd0;
-    --border: #6260ff;
-    --neo-hi: #6260ff;
-    --neo-hi-text: #ffffff;
-    --neo-shadow: #6260ff;
+[data-theme="neo-spotted-pardalote"] {
+    /* Spotted Pardalote */
+    --bg: #FAFAFA;
+    --bg-card: #b4b9b3;
+    --bg-code: #d36328;
+    --text: #000100;
+    --text-muted: #424847;
+    --accent: #cb0300;
+    --accent-hover: #d36328;
+    --border: #000100;
+    --neo-hi: #cb0300;
+    --neo-hi-text: #feca00;
+    --neo-shadow: #000100;
 }
 
-[data-theme="neo-2"] {          /* Forest */
-    --bg: #ffffff;
-    --bg-card: #fafafa;
-    --bg-code: #f0f9e8;
-    --text: #163300;
-    --text-muted: #2a5500;
-    --accent: #163300;
-    --accent-hover: #0e2200;
-    --border: #163300;
-    --neo-hi: #163300;
-    --neo-hi-text: #ffffff;
-    --neo-shadow: #163300;
+[data-theme="neo-plains-wanderer"] {
+    /* Plains-wanderer */
+    --bg: #FAFAFA;
+    --bg-card: #d09a5e;
+    --bg-code: #e7aa01;
+    --text: #0d0403;
+    --text-muted: #442c0e;
+    --accent: #ac570f;
+    --accent-hover: #73481b;
+    --border: #0d0403;
+    --neo-hi: #ac570f;
+    --neo-hi-text: #0d0403;
+    --neo-shadow: #0d0403;
 }
 
-[data-theme="neo-3"] {          /* Teal */
-    --bg: #ffffff;
-    --bg-card: #fafafa;
-    --bg-code: #e8f5f4;
-    --text: #03363d;
-    --text-muted: #1a5560;
-    --accent: #03363d;
-    --accent-hover: #024450;
-    --border: #03363d;
-    --neo-hi: #03363d;
-    --neo-hi-text: #ffffff;
-    --neo-shadow: #03363d;
+[data-theme="neo-rainbow-bee-eater"] {
+    /* Rainbow Bee-eater */
+    --bg: #FAFAFA;
+    --bg-card: #F5A200;
+    --bg-code: #06ABDF;
+    --text: #00346E;
+    --text-muted: #424D0C;
+    --accent: #007CBF;
+    --accent-hover: #00346E;
+    --border: #00346E;
+    --neo-hi: #007CBF;
+    --neo-hi-text: #EDD03E;
+    --neo-shadow: #00346E;
 }
 
-[data-theme="neo-4"] {          /* Royal */
-    --bg: #ffffff;
-    --bg-card: #fafafa;
-    --bg-code: #eef0f9;
-    --text: #0d0d0d;
-    --text-muted: #3447aa;
-    --accent: #3447aa;
-    --accent-hover: #2a3990;
-    --border: #3447aa;
-    --neo-hi: #3447aa;
-    --neo-hi-text: #ffffff;
-    --neo-shadow: #3447aa;
+[data-theme="neo-rose-crowned-fruit-dove"] {
+    /* Rose-crowned Fruit-dove */
+    --bg: #FAFAFA;
+    --bg-card: #CDD4DC;
+    --bg-code: #8FA33F;
+    --text: #014820;
+    --text-muted: #5F7929;
+    --accent: #BD338F;
+    --accent-hover: #014820;
+    --border: #014820;
+    --neo-hi: #BD338F;
+    --neo-hi-text: #F5DC83;
+    --neo-shadow: #014820;
 }
 
-[data-theme="neo-5"] {          /* Midnight */
-    --bg: #ffffff;
-    --bg-card: #fafafa;
-    --bg-code: #eef0f5;
-    --text: #141d38;
-    --text-muted: #2a3860;
-    --accent: #141d38;
-    --accent-hover: #0a1025;
-    --border: #141d38;
-    --neo-hi: #141d38;
-    --neo-hi-text: #ffffff;
-    --neo-shadow: #141d38;
+[data-theme="neo-eastern-rosella"] {
+    /* Eastern Rosella */
+    --bg: #FAFAFA;
+    --bg-card: #b8c9dc;
+    --bg-code: #f4c623;
+    --text: #2f533c;
+    --text-muted: #6c905e;
+    --accent: #cd3122;
+    --accent-hover: #2f7ab9;
+    --border: #2f533c;
+    --neo-hi: #cd3122;
+    --neo-hi-text: #bee183;
+    --neo-shadow: #2f533c;
 }
 
-[data-theme="neo-6"] {          /* Emerald */
-    --bg: #ffffff;
-    --bg-card: #fafafa;
-    --bg-code: #f0fdf4;
-    --text: #000000;
-    --text-muted: #1a3a2e;
-    --accent: #000000;
-    --accent-hover: #222222;
-    --border: #000000;
-    --neo-hi: #000000;
-    --neo-hi-text: #ffffff;
-    --neo-shadow: #000000;
+[data-theme="neo-olive-backed-oriole"] {
+    /* Olive-backed Oriole */
+    --bg: #FAFAFA;
+    --bg-card: #e2aba0;
+    --bg-code: #b8a53f;
+    --text: #4d4019;
+    --text-muted: #6c6b75;
+    --accent: #8a3223;
+    --accent-hover: #93862a;
+    --border: #4d4019;
+    --neo-hi: #8a3223;
+    --neo-hi-text: #d0cfe9;
+    --neo-shadow: #4d4019;
 }
 
-/* Lock all neo themes to their defined colors regardless of OS dark mode */
-@media (prefers-color-scheme: dark) {
-    [data-theme="neo-1"] {
-        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #eeeefd;
-        --text: #0a0a2e; --text-muted: #3d3d80;
-        --accent: #6260ff; --accent-hover: #4e4cd0; --border: #6260ff;
-        --neo-hi: #6260ff; --neo-hi-text: #ffffff; --neo-shadow: #6260ff;
-    }
-    [data-theme="neo-2"] {
-        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #f0f9e8;
-        --text: #163300; --text-muted: #2a5500;
-        --accent: #163300; --accent-hover: #0e2200; --border: #163300;
-        --neo-hi: #163300; --neo-hi-text: #ffffff; --neo-shadow: #163300;
-    }
-    [data-theme="neo-3"] {
-        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #e8f5f4;
-        --text: #03363d; --text-muted: #1a5560;
-        --accent: #03363d; --accent-hover: #024450; --border: #03363d;
-        --neo-hi: #03363d; --neo-hi-text: #ffffff; --neo-shadow: #03363d;
-    }
-    [data-theme="neo-4"] {
-        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #eef0f9;
-        --text: #0d0d0d; --text-muted: #3447aa;
-        --accent: #3447aa; --accent-hover: #2a3990; --border: #3447aa;
-        --neo-hi: #3447aa; --neo-hi-text: #ffffff; --neo-shadow: #3447aa;
-    }
-    [data-theme="neo-5"] {
-        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #eef0f5;
-        --text: #141d38; --text-muted: #2a3860;
-        --accent: #141d38; --accent-hover: #0a1025; --border: #141d38;
-        --neo-hi: #141d38; --neo-hi-text: #ffffff; --neo-shadow: #141d38;
-    }
-    [data-theme="neo-6"] {
-        --bg: #ffffff; --bg-card: #fafafa; --bg-code: #f0fdf4;
-        --text: #000000; --text-muted: #1a3a2e;
-        --accent: #000000; --accent-hover: #222222; --border: #000000;
-        --neo-hi: #000000; --neo-hi-text: #ffffff; --neo-shadow: #000000;
-    }
+[data-theme="neo-princess-parrot"] {
+    /* Princess Parrot */
+    --bg: #FAFAFA;
+    --bg-card: #8cb3de;
+    --bg-code: #6eb245;
+    --text: #214917;
+    --text-muted: #616020;
+    --accent: #cf2236;
+    --accent-hover: #d683ad;
+    --border: #214917;
+    --neo-hi: #cf2236;
+    --neo-hi-text: #afbe9f;
+    --neo-shadow: #214917;
+}
+
+[data-theme="neo-superb-fairywren"] {
+    /* Superb Fairywren */
+    --bg: #FAFAFA;
+    --bg-card: #AA7853;
+    --bg-code: #B03F05;
+    --text: #020503;
+    --text-muted: #4F3321;
+    --accent: #B03F05;
+    --accent-hover: #4F3321;
+    --border: #020503;
+    --neo-hi: #B03F05;
+    --neo-hi-text: #D9C4A7;
+    --neo-shadow: #020503;
+}
+
+[data-theme="neo-southern-cassowary"] {
+    /* Southern Cassowary */
+    --bg: #FAFAFA;
+    --bg-card: #3EBCB6;
+    --bg-code: #A56EB6;
+    --text: #09090C;
+    --text-muted: #153460;
+    --accent: #0169C4;
+    --accent-hover: #D5114E;
+    --border: #09090C;
+    --neo-hi: #0169C4;
+    --neo-hi-text: #09090C;
+    --neo-shadow: #09090C;
+}
+
+[data-theme="neo-eastern-yellow-robin"] {
+    /* Eastern Yellow Robin */
+    --bg: #FAFAFA;
+    --bg-card: #E19E00;
+    --bg-code: #979EB9;
+    --text: #201B1E;
+    --text-muted: #454B56;
+    --accent: #E19E00;
+    --accent-hover: #85773A;
+    --border: #201B1E;
+    --neo-hi: #E19E00;
+    --neo-hi-text: #201B1E;
+    --neo-shadow: #201B1E;
+}
+
+[data-theme="neo-galah"] {
+    /* Galah */
+    --bg: #FAFAFA;
+    --bg-card: #AAB9CC;
+    --bg-code: #E9A7BB;
+    --text: #4C5766;
+    --text-muted: #8390A2;
+    --accent: #D05478;
+    --accent-hover: #4C5766;
+    --border: #4C5766;
+    --neo-hi: #D05478;
+    --neo-hi-text: #FFD2CF;
+    --neo-shadow: #4C5766;
+}
+
+[data-theme="neo-blue-winged-kookaburra"] {
+    /* Blue-winged Kookaburra */
+    --bg: #FAFAFA;
+    --bg-card: #d4d8e3;
+    --bg-code: #b8bcd8;
+    --text: #06213a;
+    --text-muted: #622C14;
+    --accent: #02407c;
+    --accent-hover: #0b7595;
+    --border: #06213a;
+    --neo-hi: #02407c;
+    --neo-hi-text: #b5effb;
+    --neo-shadow: #06213a;
 }
 
 /* ============================================================
@@ -803,7 +944,14 @@ a:hover {
    ============================================================ */
 
 [data-theme^="neo"] {
+    --bg: #FAFAFA;
+    --border: var(--neo-hi);
     --radius: 0;
+    background: #FAFAFA;
+}
+
+[data-theme^="neo"] body {
+    background: #FAFAFA;
 }
 
 [data-theme^="neo"] h1,
@@ -828,10 +976,22 @@ a:hover {
     text-decoration-thickness: 2px;
 }
 
+[data-theme^="neo"] .post-tags i,
+[data-theme^="neo"] .post-date i,
+[data-theme^="neo"] .post-header time i {
+    color: var(--neo-hi);
+}
+
+[data-theme^="neo"] .post-item:hover .post-tags i,
+[data-theme^="neo"] .post-item:hover .post-date i {
+    color: var(--neo-hi-text);
+}
+
 /* Nav */
 [data-theme^="neo"] .nav {
     background: var(--neo-hi) !important;
-    border-bottom: 3px solid var(--neo-shadow);
+    border-bottom: 3px solid var(--neo-hi);
+    box-shadow: 0 4px 0 var(--neo-shadow);
     backdrop-filter: none;
 }
 
@@ -852,20 +1012,20 @@ a:hover {
 
 /* Listing */
 [data-theme^="neo"] .listing h1 {
-    border-bottom: 4px solid var(--neo-shadow);
+    border-bottom: 4px solid var(--neo-hi);
     padding-bottom: 1rem;
 }
 
 [data-theme^="neo"] .post-item {
-    border: 2px solid var(--neo-shadow);
+    border: 2px solid var(--neo-hi);
     padding: 1.5rem;
     margin-bottom: 1rem;
-    border-bottom: 2px solid var(--neo-shadow);
+    border-bottom: 2px solid var(--neo-hi);
     transition: transform 0.08s, box-shadow 0.08s;
 }
 
 [data-theme^="neo"] .post-item:last-child {
-    border-bottom: 2px solid var(--neo-shadow);
+    border-bottom: 2px solid var(--neo-hi);
 }
 
 [data-theme^="neo"] .post-item:hover {
@@ -882,7 +1042,7 @@ a:hover {
 
 [data-theme^="neo"] .post-title {
     font-weight: 900;
-    color: var(--text);
+    color: var(--neo-hi);
     transition: none;
 }
 
@@ -890,7 +1050,7 @@ a:hover {
 [data-theme^="neo"] .tag {
     background: var(--neo-hi);
     color: var(--neo-hi-text);
-    border: 2px solid var(--neo-shadow);
+    border: 2px solid var(--neo-hi);
     border-radius: 0;
     font-weight: 700;
     transition: none;
@@ -899,46 +1059,45 @@ a:hover {
 [data-theme^="neo"] .post-item:hover .tag {
     background: var(--neo-hi-text);
     color: var(--neo-hi);
-    border-color: var(--neo-shadow);
+    border-color: var(--neo-hi);
 }
 
 /* Post header */
 [data-theme^="neo"] .post-header h1 {
-    border-bottom: 4px solid var(--neo-shadow);
+    border-bottom: 4px solid var(--neo-hi);
     padding-bottom: 1rem;
 }
 
 /* Post body */
 [data-theme^="neo"] .post-body h2 {
-    border-bottom: 3px solid var(--neo-shadow);
+    border-bottom: 3px solid var(--neo-hi);
     padding-bottom: 0.4rem;
 }
 
 [data-theme^="neo"] .post-body blockquote {
-    border-left: 6px solid var(--neo-shadow);
-    background: var(--neo-hi);
-    color: var(--neo-hi-text);
+    border-left: 6px solid var(--neo-hi);
+    background: color-mix(in srgb, var(--neo-hi) 14%, #FAFAFA);
+    color: var(--text);
     font-style: normal;
     font-weight: 600;
     border-radius: 0;
     box-shadow: 4px 4px 0 var(--neo-shadow);
 }
 
-[data-theme^="neo"] .post-body pre {
-    border: 3px solid var(--neo-shadow);
+/*[data-theme^="neo"] .post-body pre {
+    border: 3px solid var(--neo-hi);
     border-radius: 0;
     box-shadow: 5px 5px 0 var(--neo-shadow);
-    background: var(--bg-code) !important;
-}
+}*/
 
 [data-theme^="neo"] .post-body code {
-    border: 1px solid var(--neo-shadow);
+    border: 1px solid var(--neo-hi);
     border-radius: 0;
     background: var(--bg-code);
 }
 
 [data-theme^="neo"] .post-body img {
-    border: 3px solid var(--neo-shadow);
+    border: 3px solid var(--neo-hi);
     border-radius: 0;
     box-shadow: 6px 6px 0 var(--neo-shadow);
 }
@@ -946,7 +1105,7 @@ a:hover {
 /* Tables */
 [data-theme^="neo"] .post-body table.dataTable th,
 [data-theme^="neo"] .post-body table.dataTable td {
-    border: 2px solid var(--neo-shadow);
+    border: 2px solid var(--neo-hi);
 }
 
 [data-theme^="neo"] .post-body table.dataTable thead th {
@@ -960,14 +1119,14 @@ a:hover {
 
 [data-theme^="neo"] .post-body .dataTables_filter input,
 [data-theme^="neo"] .post-body .dataTables_length select {
-    border: 2px solid var(--neo-shadow);
+    border: 2px solid var(--neo-hi);
     border-radius: 0;
     background: var(--bg);
     color: var(--text);
 }
 
 [data-theme^="neo"] .post-body .dataTables_paginate .paginate_button {
-    border: 2px solid var(--neo-shadow) !important;
+    border: 2px solid var(--neo-hi) !important;
     border-radius: 0;
     background: var(--bg);
     color: var(--text) !important;
@@ -982,40 +1141,54 @@ a:hover {
 
 /* TOC */
 [data-theme^="neo"] .toc {
-    border: 3px solid var(--neo-shadow);
+    border: 3px solid var(--neo-hi);
     border-radius: 0;
     box-shadow: 4px 4px 0 var(--neo-shadow);
-    background: var(--bg-card);
+    background: color-mix(in srgb, var(--neo-hi) 12%, #FAFAFA);
 }
 
 [data-theme^="neo"] .toc::before {
-    color: var(--text);
+    color: var(--neo-hi);
+    border-bottom: 2px solid var(--neo-hi);
+    padding-bottom: 0.25rem;
+}
+
+[data-theme^="neo"] .toc a {
+    color: var(--neo-shadow);
+    text-decoration-color: var(--neo-hi);
+}
+
+[data-theme^="neo"] .toc a:hover {
+    color: var(--neo-hi);
 }
 
 /* Callouts */
 [data-theme^="neo"] .callout {
-    border: 2px solid var(--neo-shadow);
+    background: color-mix(in srgb, var(--neo-hi) 10%, #FAFAFA);
+    border: 2px solid var(--neo-hi);
+    border-left-width: 6px;
     border-radius: 0;
+    color: var(--text);
     box-shadow: 3px 3px 0 var(--neo-shadow);
 }
 
-/* Restore light-mode callout colors when OS prefers dark */
+[data-theme^="neo"] .callout::before {
+    color: var(--neo-hi);
+}
+
+/* Keep neo callouts palette-driven regardless of OS dark mode */
 @media (prefers-color-scheme: dark) {
-    [data-theme^="neo"] .callout { background: inherit; }
-    [data-theme^="neo"] .callout-info { background: #eff6ff; border-left-color: #3b82f6; color: #1e40af; }
-    [data-theme^="neo"] .callout-warning { background: #fffbeb; border-left-color: #f59e0b; color: #92400e; }
-    [data-theme^="neo"] .callout-tip { background: #f0fdf4; border-left-color: #22c55e; color: #166534; }
-    [data-theme^="neo"] .callout-success { background: #ecfdf5; border-left-color: #10b981; color: #065f46; }
-    [data-theme^="neo"] .callout-note { background: #f8fafc; border-left-color: #64748b; color: #334155; }
-    [data-theme^="neo"] .callout-important { background: #f5f3ff; border-left-color: #8b5cf6; color: #5b21b6; }
-    [data-theme^="neo"] .callout-danger,
-    [data-theme^="neo"] .callout-error,
-    [data-theme^="neo"] .callout-caution { background: #fef2f2; border-left-color: #ef4444; color: #991b1b; }
+    [data-theme^="neo"] .callout {
+        background: color-mix(in srgb, var(--neo-hi) 10%, #FAFAFA);
+        border-color: var(--neo-hi);
+        color: var(--text);
+    }
 }
 
 /* Footer */
 [data-theme^="neo"] .footer {
-    border-top: 3px solid var(--neo-shadow);
+    border-top: 3px solid var(--neo-hi);
+    color: var(--text);
     font-weight: 600;
 }
 
@@ -1023,7 +1196,7 @@ a:hover {
 [data-theme^="neo"] #theme-toggle {
     background: var(--neo-hi);
     color: var(--neo-hi-text);
-    border: 2px solid var(--neo-shadow);
+    border: 2px solid var(--neo-hi);
     border-radius: 0;
     box-shadow: 3px 3px 0 var(--neo-shadow);
     transition: transform 0.08s, box-shadow 0.08s;
@@ -1031,7 +1204,7 @@ a:hover {
 
 [data-theme^="neo"] #theme-toggle:hover {
     color: var(--neo-hi-text);
-    border-color: var(--neo-shadow);
+    border-color: var(--neo-hi);
     background: var(--neo-hi);
     transform: translate(-2px, -2px);
     box-shadow: 5px 5px 0 var(--neo-shadow);
@@ -1044,8 +1217,8 @@ a:hover {
 
 /* Theme menu – neo state */
 [data-theme^="neo"] #theme-menu {
-    border: 2px solid var(--neo-shadow);
+    border: 2px solid var(--neo-hi);
     border-radius: 0;
     box-shadow: 4px 4px 0 var(--neo-shadow);
-    background: var(--bg-card);
+    background: #FAFAFA;
 }
