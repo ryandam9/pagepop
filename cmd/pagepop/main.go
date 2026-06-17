@@ -11,7 +11,13 @@ import (
 	"pagepop/internal/logutil"
 )
 
-const version = "0.1.0"
+// Build metadata. Overridable at link time via:
+//   go build -ldflags "-X main.version=... -X main.commit=... -X main.date=..."
+var (
+	version = "0.1.0"
+	commit  = ""
+	date    = ""
+)
 
 const helpText = `Pagepop — a lightweight static site generator
 
@@ -81,6 +87,12 @@ func main() {
 
 	if *showVersion {
 		fmt.Printf("pagepop v%s\n", version)
+		if commit != "" {
+			fmt.Printf("commit: %s\n", commit)
+		}
+		if date != "" {
+			fmt.Printf("built:  %s\n", date)
+		}
 		os.Exit(0)
 	}
 
