@@ -30,6 +30,17 @@
     box-sizing: border-box;
 }
 
+html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 1.5rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+}
+
 body {
     font-family: 'Google Sans', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
     background: var(--bg);
@@ -254,6 +265,7 @@ a:hover {
     margin: 3rem 0;
     display: block;
     box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+    cursor: zoom-in;
 }
 
 .post-body pre {
@@ -1221,4 +1233,65 @@ a:hover {
     border-radius: 0;
     box-shadow: 4px 4px 0 var(--neo-shadow);
     background: #FAFAFA;
+}
+
+/* Image lightbox */
+#image-lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.85);
+    cursor: zoom-out;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+#image-lightbox.open {
+    opacity: 1;
+    visibility: visible;
+}
+
+#image-lightbox img {
+    max-width: 95vw;
+    max-height: 95vh;
+    width: auto;
+    height: auto;
+    margin: 0;
+    border-radius: var(--radius);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+    cursor: default;
+    transform: scale(0.95);
+    transition: transform 0.2s ease;
+}
+
+#image-lightbox.open img {
+    transform: scale(1);
+}
+
+#image-lightbox-close {
+    position: fixed;
+    top: 1.25rem;
+    right: 1.5rem;
+    width: 2.75rem;
+    height: 2.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    line-height: 1;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.12);
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background 0.15s ease;
+}
+
+#image-lightbox-close:hover {
+    background: rgba(255, 255, 255, 0.28);
 }
