@@ -68,6 +68,35 @@
             });
         });
     </script>
+    <div id="image-lightbox" aria-hidden="true">
+        <button id="image-lightbox-close" aria-label="Close image"><i class="fa-solid fa-xmark"></i></button>
+        <img alt="" />
+    </div>
+    <script>
+        (function () {
+            var box = document.getElementById('image-lightbox');
+            var full = box.querySelector('img');
+            var closeBtn = document.getElementById('image-lightbox-close');
+            function open(src, alt) {
+                full.src = src;
+                full.alt = alt || '';
+                box.classList.add('open');
+                box.setAttribute('aria-hidden', 'false');
+                document.body.style.overflow = 'hidden';
+            }
+            function close() {
+                box.classList.remove('open');
+                box.setAttribute('aria-hidden', 'true');
+                document.body.style.overflow = '';
+            }
+            document.querySelectorAll('.post-body img').forEach(function (img) {
+                img.addEventListener('click', function () { open(img.currentSrc || img.src, img.alt); });
+            });
+            box.addEventListener('click', function (e) { if (e.target !== full) close(); });
+            closeBtn.addEventListener('click', close);
+            document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.classList.contains('open')) close(); });
+        })();
+    </script>
     <div id="theme-picker">
         <button id="theme-toggle" aria-label="Choose theme"><i class="fa-solid fa-palette"></i> Theme</button>
         <div id="theme-menu" hidden>
