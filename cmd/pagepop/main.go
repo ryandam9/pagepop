@@ -12,7 +12,8 @@ import (
 )
 
 // Build metadata. Overridable at link time via:
-//   go build -ldflags "-X main.version=... -X main.commit=... -X main.date=..."
+//
+//	go build -ldflags "-X main.version=... -X main.commit=... -X main.date=..."
 var (
 	version = "0.1.0"
 	commit  = ""

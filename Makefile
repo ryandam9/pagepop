@@ -13,6 +13,8 @@ LDFLAGS := -X main.version=$(VERSION) \
 CONFIG  ?= md_files.yml
 OUTPUT  ?= ./blog
 
+.DEFAULT_GOAL := all
+
 .PHONY: all fmt vet test build install clean run tidy lint help
 
 all: fmt vet test build install
