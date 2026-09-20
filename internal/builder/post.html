@@ -10,7 +10,7 @@
     <meta property="og:description" content="{{.Meta.Description}}" />
     <meta property="og:type" content="article" />
     {{if .Site.BaseURL}}
-    <meta property="og:url" content="{{.Site.BaseURL}}/{{.Meta.Date.Format " 2006/01/02"}}/{{.Meta.Slug}}/index.html" />
+    <meta property="og:url" content="{{.Site.BaseURL}}/{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html" />
     {{end}}
     <meta name="twitter:card" content="summary" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,7 +35,7 @@
                     {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
                 </div>
                 {{end}}
-                <time><i class="fa-regular fa-calendar"></i> {{.Meta.Date.Format "January 2, 2006"}}</time>
+                <time datetime="{{.Meta.Date.Format "2006-01-02"}}"><i class="fa-regular fa-calendar"></i> {{.Meta.Date.Format "January 2, 2006"}}</time>
             </header>
             {{if .TOC}}
             <div class="post-layout {{if .TOCTop}}toc-top{{else}}toc-side{{end}}">
