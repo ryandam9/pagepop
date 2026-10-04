@@ -35,8 +35,9 @@ type mdEntry struct {
 }
 
 type mdConfig struct {
-	Site          SiteConfig `yaml:"site"`
-	MarkdownFiles []mdEntry  `yaml:"markdown_files"`
+	Site          SiteConfig  `yaml:"site"`
+	MarkdownFiles []mdEntry   `yaml:"markdown_files"`
+	HTMLPages     []htmlEntry `yaml:"html_pages"`
 }
 
 type postMeta struct {
@@ -120,6 +121,26 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 			continue
 		}
 		posts = append(posts, p)
+	}
+
+	for _, entry := range cfg.HTMLPages {
+		p, err := processHTMLPage(entry, outputDir, log)
+		if err != nil {
+			log.Warn("processing html page %s%s: %v", entry.File, entry.Dir, err)
+			continue
+		}
+		posts = append(posts, p)
+	}
+
+	// Two entries resolving to the same date and slug would overwrite each
+	// other's output; say so rather than silently publishing only one.
+	seen := map[string]bool{}
+	for _, p := range posts {
+		key := p.Meta.Date.Format("2006/01/02") + "/" + p.Meta.Slug
+		if seen[key] {
+			log.Warn("two entries share the output path %s; one overwrites the other", key)
+		}
+		seen[key] = true
 	}
 
 	sort.Slice(posts, func(i, j int) bool {
@@ -354,19 +375,21 @@ func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref str
 
 	var buf bytes.Buffer
 	data := struct {
-		Meta    postMeta
-		Body    template.HTML
-		TOC     template.HTML
-		TOCTop  bool
-		CSSHref string
-		Site    SiteConfig
+		Meta      postMeta
+		Body      template.HTML
+		TOC       template.HTML
+		TOCTop    bool
+		CSSHref   string
+		Site      SiteConfig
+		HasTweets bool
 	}{
-		Meta:    m,
-		Body:    bodyHTML,
-		TOC:     toc,
-		TOCTop:  tocTop,
-		CSSHref: cssHref,
-		Site:    siteCfg,
+		Meta:      m,
+		Body:      bodyHTML,
+		TOC:       toc,
+		TOCTop:    tocTop,
+		CSSHref:   cssHref,
+		Site:      siteCfg,
+		HasTweets: hasTweets(string(bodyHTML)),
 	}
 
 	if err := tmpl.Execute(&buf, data); err != nil {
@@ -522,7 +545,7 @@ func renderMarkdown(md string) template.HTML {
 	if err := mdRenderer.Convert([]byte(md), &buf); err != nil {
 		return template.HTML(fmt.Sprintf("<p>error rendering markdown: %v</p>", err))
 	}
-	return template.HTML(transformCallouts(buf.String()))
+	return template.HTML(embedTweets(transformCallouts(buf.String())))
 }
 
 var calloutRe = regexp.MustCompile(`(?si)<blockquote>\s*<p>\[!(info|warning|tip|success|note|danger|error|important|caution)\]\s*(.*?)</p>(.*?)</blockquote>`)
