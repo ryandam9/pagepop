@@ -9,6 +9,8 @@ A lightweight static site generator written in Go. Point it at a list of Markdow
 - **Built-in styles** — clean, responsive default theme; no external CSS frameworks
 - **Image lightbox** — click any image in a post to expand it to a full-screen view
 - **Smooth navigation** — table-of-contents links glide to their section instead of jumping
+- **HTML pages** — publish ready-made HTML pages (single files or whole folders) alongside the posts
+- **Embedded X posts** — a link to a post on X/Twitter on its own line becomes an embedded post
 - **Zero config** — only a YAML list of Markdown files is required
 
 ## Output layout
@@ -113,6 +115,50 @@ Body content starts here...
 | `Description` | plain text | No | Subtitle shown below the title and in the listing |
 
 > **Note:** If `Created` is missing the post is placed under `1900/01/01/` and sorts to the bottom of the listing.
+
+## HTML pages
+
+Ready-made HTML pages can be published next to the posts and appear in the
+listing like any other entry. List them under `html_pages`:
+
+```yaml
+html_pages:
+  # A single self-contained file.
+  - file: /path/to/standalone.html
+    created: 2026/10/01
+
+  # A folder holding the page and everything it loads. The whole folder is
+  # copied (dot-files such as .git are skipped), so relative links keep working.
+  - dir: /path/to/my-demo
+    index: demo.html               # entry page; default index.html
+    created: 2026/10/02
+    title: My demo                 # default: the page's <title>
+    description: What it shows     # default: its <meta name="description">
+    tags: [javascript, demo]
+    slug: my-demo                  # default: the file or folder name
+```
+
+Each page lands at `YYYY/MM/DD/<slug>/index.html`, just like a post. Pages are
+published as-is: pagepop does not wrap them in the blog's layout or styles. An
+entry page not named `index.html` is also published under that name, so the
+folder must not already contain a different `index.html`.
+
+## Embedded X (Twitter) posts
+
+Put a link to a post on a line of its own and it renders as an embedded post:
+
+```markdown
+Here is what they said:
+
+https://x.com/jack/status/20
+```
+
+Bare URLs, `<https://...>` and `[text](https://...)` all work, for both
+`x.com` and `twitter.com`. A link inside a sentence stays an ordinary link.
+The embed script (`platform.twitter.com/widgets.js`) is loaded only on posts
+that contain one, with X's "do not track" option set, and it follows the
+reader's light/dark preference. Without JavaScript the reader sees a plain
+link to the post.
 
 ## Behaviour notes
 

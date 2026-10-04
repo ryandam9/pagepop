@@ -204,3 +204,114 @@ func TestTransformCallouts(t *testing.T) {
 		})
 	}
 }
+
+func TestEmbedTweets(t *testing.T) {
+	cases := []struct {
+		name  string
+		md    string
+		embed string // expected canonical URL, "" for no embed
+	}{
+		{"bare x.com", "https://x.com/jack/status/20\n", "https://twitter.com/jack/status/20"},
+		{"bare twitter.com with query", "https://twitter.com/jack/status/20?s=21&t=abc\n", "https://twitter.com/jack/status/20"},
+		{"angle autolink", "<https://www.x.com/jack/status/20>\n", "https://twitter.com/jack/status/20"},
+		{"markdown link", "[a post](https://x.com/jack/status/20)\n", "https://twitter.com/jack/status/20"},
+		{"inline in sentence", "See https://x.com/jack/status/20 for details.\n", ""},
+		{"profile link", "https://x.com/jack\n", ""},
+	}
+	for _, tc := range cases {
+		t.Run(tc.name, func(t *testing.T) {
+			out := string(renderMarkdown(tc.md))
+			if tc.embed == "" {
+				if hasTweets(out) {
+					t.Errorf("did not expect an embed, got: %s", out)
+				}
+				return
+			}
+			if !hasTweets(out) || !strings.Contains(out, `href="`+tc.embed+`"`) {
+				t.Errorf("expected embed of %s, got: %s", tc.embed, out)
+			}
+		})
+	}
+
+	meta := postMeta{Title: "T", Date: time.Now()}
+	with, _ := wrapPost(meta, renderMarkdown("https://x.com/jack/status/20\n"), "", "style.css", false, SiteConfig{})
+	if !strings.Contains(with, "platform.twitter.com/widgets.js") {
+		t.Errorf("post with an embedded tweet should load widgets.js")
+	}
+	without, _ := wrapPost(meta, renderMarkdown("Hello\n"), "", "style.css", false, SiteConfig{})
+	if strings.Contains(without, "platform.twitter.com") {
+		t.Errorf("post without tweets must not load widgets.js")
+	}
+}
+
+func TestHTMLPages(t *testing.T) {
+	tempDir := t.TempDir()
+	write := func(rel, content string) {
+		p := filepath.Join(tempDir, rel)
+		if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	write("standalone.html", `<html><head><title>Stand &amp; Alone</title><meta name="description" content="From the page"></head><body>hi</body></html>`)
+	write("demo/app.html", `<html><head><title>ignored</title><script src="js/app.js"></script></head></html>`)
+	write("demo/js/app.js", `console.log(1)`)
+	write("demo/.git/config", `secret`)
+
+	config := fmt.Sprintf(`site:
+  title: T
+html_pages:
+  - file: %s
+    created: 2025/02/03
+  - dir: %s
+    index: app.html
+    title: My Demo
+    description: Interactive demo
+    tags: [js, demo]
+    created: 2025/03/04
+`, filepath.Join(tempDir, "standalone.html"), filepath.Join(tempDir, "demo"))
+	write("cfg.yml", config)
+
+	out := filepath.Join(tempDir, "blog")
+	if err := Site(out, filepath.Join(tempDir, "cfg.yml"), false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() failed: %v", err)
+	}
+
+	for _, rel := range []string{
+		"2025/02/03/standalone/index.html",
+		"2025/03/04/demo/app.html",
+		"2025/03/04/demo/index.html",
+		"2025/03/04/demo/js/app.js",
+	} {
+		if _, err := os.Stat(filepath.Join(out, rel)); err != nil {
+			t.Errorf("expected %s: %v", rel, err)
+		}
+	}
+	if _, err := os.Stat(filepath.Join(out, "2025/03/04/demo/.git")); err == nil {
+		t.Errorf("dot-directories must not be published")
+	}
+
+	listing, err := os.ReadFile(filepath.Join(out, "blog_entries.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`href='2025/02/03/standalone/index.html'`,
+		`Stand &amp; Alone`,
+		`From the page`,
+		`href='2025/03/04/demo/index.html'`,
+		`My Demo`,
+		`Interactive demo`,
+	} {
+		if !strings.Contains(string(listing), want) {
+			t.Errorf("listing missing %q", want)
+		}
+	}
+	// Newest first.
+	if strings.Index(string(listing), "My Demo") > strings.Index(string(listing), "Stand &amp; Alone") {
+		t.Errorf("listing not sorted newest first")
+	}
+}
