@@ -29,7 +29,7 @@ blog/
                 └── <images>         # images referenced in the post
 ```
 
-The slug is the Markdown filename with the extension removed, lowercased, and non-alphanumeric characters stripped. Posts missing a `Created` date fall back to `1900/01/01`.
+The slug is the Markdown filename with the extension removed, lowercased, and non-alphanumeric characters stripped. If the filename starts with a `yyyy.mm.dd` date (e.g. `2026.10.09-my-post.md`), that prefix is dropped from the slug, and it supplies the post date when there is no `Created` line. Posts with no date from either source fall back to `1900/01/01`.
 
 ## Getting started
 

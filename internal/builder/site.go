@@ -64,6 +64,7 @@ var listingTemplate string
 
 var (
 	reDate        = regexp.MustCompile(`(\d{4}/\d{2}/\d{2})`)
+	reFileDate    = regexp.MustCompile(`^(\d{4}\.\d{2}\.\d{2})[-_. ]*`)
 	reTags        = regexp.MustCompile(`(?i)^-\s*tags\s*-\s*(.+)`)
 	reDescription = regexp.MustCompile(`(?i)^-\s*description\s*-\s*(.+)`)
 	reCreated     = regexp.MustCompile(`(?i)^-\s*created\s*-\s*(.+)`)
@@ -244,6 +245,7 @@ func extractMeta(src, filename string) (postMeta, string) {
 		Date: time.Date(1900, 1, 1, 0, 0, 0, 0, time.UTC),
 	}
 
+	haveDate := false
 	lines := strings.Split(src, "\n")
 	metaLines := map[int]bool{}
 	titleLineIndex := -1
@@ -267,6 +269,7 @@ func extractMeta(src, filename string) (postMeta, string) {
 			if dateMatches := reDate.FindStringSubmatch(matches[1]); dateMatches != nil {
 				if t, err := time.Parse("2006/01/02", dateMatches[1]); err == nil {
 					m.Date = t
+					haveDate = true
 				}
 			}
 			metaLines[i] = true
@@ -304,6 +307,19 @@ func extractMeta(src, filename string) (postMeta, string) {
 	body := strings.TrimSpace(strings.Join(bodyLines, "\n"))
 
 	slug := strings.TrimSuffix(filename, filepath.Ext(filename))
+
+	// A "yyyy.mm.dd" filename prefix supplies the date when the post has no
+	// Created line, and is dropped from the slug since the path already has it.
+	if dm := reFileDate.FindStringSubmatch(slug); dm != nil {
+		if t, err := time.Parse("2006.01.02", dm[1]); err == nil {
+			if !haveDate {
+				m.Date = t
+			}
+			if rest := slug[len(dm[0]):]; rest != "" {
+				slug = rest
+			}
+		}
+	}
 	slug = strings.ToLower(slug)
 	slug = reSlugClean.ReplaceAllString(slug, "")
 	slug = strings.Trim(slug, "-")

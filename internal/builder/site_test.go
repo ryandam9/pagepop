@@ -45,6 +45,28 @@ This is the body of the post.
 	}
 }
 
+func TestExtractMetaFilenameDate(t *testing.T) {
+	tests := []struct {
+		name, src, filename, wantDate, wantSlug string
+	}{
+		{"no created line", "# T\n\nbody", "2026.10.09-my-post.md", "2026/10/09", "my-post"},
+		{"created line wins", "# T\n- Created - 2024/05/18\n\nbody", "2026.10.09-my-post.md", "2024/05/18", "my-post"},
+		{"date only filename", "# T\n\nbody", "2026.10.09.md", "2026/10/09", "20261009"},
+		{"no date anywhere", "# T\n\nbody", "my-post.md", "1900/01/01", "my-post"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			meta, _ := extractMeta(tt.src, tt.filename)
+			if got := meta.Date.Format("2006/01/02"); got != tt.wantDate {
+				t.Errorf("date = %s, want %s", got, tt.wantDate)
+			}
+			if meta.Slug != tt.wantSlug {
+				t.Errorf("slug = %q, want %q", meta.Slug, tt.wantSlug)
+			}
+		})
+	}
+}
+
 func TestFixImagePaths(t *testing.T) {
 	tests := []struct {
 		input    string
