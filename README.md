@@ -162,7 +162,8 @@ link to the post.
 
 ## Behaviour notes
 
-- **Up-to-date check** — a post is skipped if its `index.html` is already newer than the source `.md` file, avoiding unnecessary rebuilds.
+- **Up-to-date check** — a post is skipped if its `index.html` is already newer than the source `.md` file, avoiding unnecessary rebuilds and links the current stylesheet version.
+- **Stylesheet versioning** — pages link `style.css?v=<hash>`, where the hash follows the stylesheet's content. A CSS change gives every page a new link, so browsers and CDNs fetch the new stylesheet instead of serving a cached copy.
 - **Image copying** — images referenced in a post are copied into the post's output directory. Supported lookup paths: `images/<file>`, `./images/<file>`, `../<file>`.
 - **Image lightbox** — every image in a post body is clickable. Clicking expands it to a centred, full-screen view over a dimmed backdrop; it closes on `Escape`, on clicking the backdrop, or via the ✕ button. The full-resolution source is shown, so large SVG/PNG/JPEG images fill the screen instead of being constrained to the post column.
 - **Smooth scrolling** — clicking a table-of-contents link smoothly scrolls to the target heading. Readers who enable the OS "reduce motion" setting get an instant jump instead.
