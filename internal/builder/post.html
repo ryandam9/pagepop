@@ -19,7 +19,6 @@
     <link rel="stylesheet" href="{{.CSSHref}}" />
     <link rel="stylesheet" href="https://cdn.datatables.net/2.2.2/css/dataTables.dataTables.min.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
-    <script>(function(){try{var t=localStorage.getItem('pagepop-theme');if(t&&/^neo-(spotted-pardalote|plains-wanderer|rainbow-bee-eater|rose-crowned-fruit-dove|eastern-rosella|olive-backed-oriole|princess-parrot|superb-fairywren|southern-cassowary|eastern-yellow-robin|galah|blue-winged-kookaburra)$/.test(t))document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
 </head>
 
 <body>
@@ -111,50 +110,6 @@
             box.addEventListener('click', function (e) { if (e.target !== full) close(); });
             closeBtn.addEventListener('click', close);
             document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && box.classList.contains('open')) close(); });
-        })();
-    </script>
-    <div id="theme-picker">
-        <button id="theme-toggle" aria-label="Choose theme"><i class="fa-solid fa-palette"></i> Theme</button>
-        <div id="theme-menu" hidden>
-            <button data-theme="">Default</button>
-            <button data-theme="neo-spotted-pardalote">Spotted Pardalote</button>
-            <button data-theme="neo-plains-wanderer">Plains-wanderer</button>
-            <button data-theme="neo-rainbow-bee-eater">Rainbow Bee-eater</button>
-            <button data-theme="neo-rose-crowned-fruit-dove">Rose-crowned Fruit-dove</button>
-            <button data-theme="neo-eastern-rosella">Eastern Rosella</button>
-            <button data-theme="neo-olive-backed-oriole">Olive-backed Oriole</button>
-            <button data-theme="neo-princess-parrot">Princess Parrot</button>
-            <button data-theme="neo-superb-fairywren">Superb Fairywren</button>
-            <button data-theme="neo-southern-cassowary">Southern Cassowary</button>
-            <button data-theme="neo-eastern-yellow-robin">Eastern Yellow Robin</button>
-            <button data-theme="neo-galah">Galah</button>
-            <button data-theme="neo-blue-winged-kookaburra">Blue-winged Kookaburra</button>
-        </div>
-    </div>
-    <script>
-        (function () {
-            var toggle = document.getElementById('theme-toggle');
-            var menu = document.getElementById('theme-menu');
-            var html = document.documentElement;
-            function current() { return html.getAttribute('data-theme') || ''; }
-            function applyTheme(t) {
-                if (t) html.setAttribute('data-theme', t);
-                else html.removeAttribute('data-theme');
-                try { if (t) localStorage.setItem('pagepop-theme', t); else localStorage.removeItem('pagepop-theme'); } catch(e) {}
-                syncActive();
-            }
-            function syncActive() {
-                var t = current();
-                menu.querySelectorAll('button[data-theme]').forEach(function(b) {
-                    b.classList.toggle('active', b.getAttribute('data-theme') === t);
-                });
-            }
-            toggle.addEventListener('click', function(e) { e.stopPropagation(); menu.hidden = !menu.hidden; });
-            menu.querySelectorAll('button[data-theme]').forEach(function(b) {
-                b.addEventListener('click', function(e) { e.stopPropagation(); applyTheme(b.getAttribute('data-theme')); menu.hidden = true; });
-            });
-            document.addEventListener('click', function() { menu.hidden = true; });
-            syncActive();
         })();
     </script>
 </body>
