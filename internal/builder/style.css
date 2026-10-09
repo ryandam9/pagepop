@@ -254,7 +254,6 @@ a:hover {
     border-left: 4px solid var(--accent);
     background: var(--bg-code);
     border-radius: 0 var(--radius) var(--radius) 0;
-    font-style: italic;
     color: var(--text-muted);
 }
 
