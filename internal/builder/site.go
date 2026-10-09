@@ -2,7 +2,9 @@ package builder
 
 import (
 	"bytes"
+	"crypto/sha256"
 	_ "embed"
+	"encoding/hex"
 	"fmt"
 	"html/template"
 	"os"
@@ -112,11 +114,12 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	cfg.Site.BaseURL = strings.TrimSuffix(cfg.Site.BaseURL, "/")
 
 	cssBytes := buildCSS()
+	cssQuery := cssVersionQuery(cssBytes)
 
 	var posts []post
 
 	for _, entry := range cfg.MarkdownFiles {
-		p, err := processFile(entry.File, outputDir, cssBytes, embedStyles, tocTop, cfg.Site, log)
+		p, err := processFile(entry.File, outputDir, cssBytes, cssQuery, embedStyles, tocTop, cfg.Site, log)
 		if err != nil {
 			log.Warn("processing file %s: %v", entry.File, err)
 			continue
@@ -148,11 +151,11 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 		return posts[i].Meta.Date.After(posts[j].Meta.Date)
 	})
 
-	if err := writeBlogListing(outputDir, posts, cfg.Site); err != nil {
+	if err := writeBlogListing(outputDir, posts, cfg.Site, cssQuery); err != nil {
 		return fmt.Errorf("writing blog listing: %w", err)
 	}
 
-	if err := writeTagIndexes(outputDir, posts, cfg.Site, cssBytes); err != nil {
+	if err := writeTagIndexes(outputDir, posts, cfg.Site, cssBytes, cssQuery); err != nil {
 		return fmt.Errorf("writing tag indexes: %w", err)
 	}
 
@@ -173,7 +176,7 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	return nil
 }
 
-func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles, tocTop bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
+func processFile(mdPath, outputDir string, cssBytes []byte, cssQuery string, embedStyles, tocTop bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
 	data, err := os.ReadFile(mdPath)
 	if err != nil {
 		return post{}, fmt.Errorf("reading %s: %w", mdPath, err)
@@ -184,13 +187,28 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles, tocTop 
 	dir := filepath.Join(outputDir, meta.Date.Format("2006/01/02"), meta.Slug)
 	outPath := filepath.Join(dir, "index.html")
 
+	// Link the root style.css with a path relative to this post's directory so
+	// it resolves correctly no matter where the blog is mounted (e.g. served
+	// from a subdirectory like /blog/). The post lives at
+	// outputDir/YYYY/MM/DD/<slug>/, so this yields ../../../../style.css.
+	cssHref := "style.css"
+	if !embedStyles {
+		rel, err := filepath.Rel(dir, outputDir)
+		if err != nil {
+			return post{}, fmt.Errorf("computing css path for %s: %w", mdPath, err)
+		}
+		cssHref = filepath.ToSlash(filepath.Join(rel, "style.css"))
+	}
+	cssHref += cssQuery
+
 	// Skip regeneration when the output HTML is already newer than the source
-	// Markdown file.
+	// Markdown file and links the current stylesheet version. A changed
+	// stylesheet changes the link, so every post is rewritten to point at it.
 	mdStat, err := os.Stat(mdPath)
 	if err != nil {
 		return post{}, fmt.Errorf("stat %s: %w", mdPath, err)
 	}
-	if outStat, err := os.Stat(outPath); err == nil && !outStat.ModTime().Before(mdStat.ModTime()) {
+	if outStat, err := os.Stat(outPath); err == nil && !outStat.ModTime().Before(mdStat.ModTime()) && linksCSS(outPath, cssHref) {
 		log.Info("Skipped (up to date): %s", outPath)
 		return post{Meta: meta, Body: renderMarkdown(bodyMD)}, nil
 	}
@@ -209,21 +227,10 @@ func processFile(mdPath, outputDir string, cssBytes []byte, embedStyles, tocTop 
 	}
 	bodyHTML = template.HTML(fixImagePaths(string(bodyHTML)))
 
-	// Link the root style.css with a path relative to this post's directory so
-	// it resolves correctly no matter where the blog is mounted (e.g. served
-	// from a subdirectory like /blog/). The post lives at
-	// outputDir/YYYY/MM/DD/<slug>/, so this yields ../../../../style.css.
-	cssHref := "style.css"
 	if embedStyles {
 		if err := os.WriteFile(filepath.Join(dir, "style.css"), cssBytes, 0644); err != nil {
 			return post{}, fmt.Errorf("writing style.css in post dir: %w", err)
 		}
-	} else {
-		rel, err := filepath.Rel(dir, outputDir)
-		if err != nil {
-			return post{}, fmt.Errorf("computing css path for %s: %w", mdPath, err)
-		}
-		cssHref = filepath.ToSlash(filepath.Join(rel, "style.css"))
 	}
 
 	full, err := wrapPost(meta, bodyHTML, toc, cssHref, tocTop, siteCfg)
@@ -415,7 +422,7 @@ func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref str
 	return buf.String(), nil
 }
 
-func writeBlogListing(outputDir string, posts []post, siteCfg SiteConfig) error {
+func writeBlogListing(outputDir string, posts []post, siteCfg SiteConfig, cssQuery string) error {
 	tmpl, err := template.New("listing").Parse(listingTemplate)
 	if err != nil {
 		return err
@@ -423,11 +430,13 @@ func writeBlogListing(outputDir string, posts []post, siteCfg SiteConfig) error 
 
 	var buf bytes.Buffer
 	data := struct {
-		Posts []post
-		Site  SiteConfig
+		Posts    []post
+		Site     SiteConfig
+		CSSQuery string
 	}{
-		Posts: posts,
-		Site:  siteCfg,
+		Posts:    posts,
+		Site:     siteCfg,
+		CSSQuery: cssQuery,
 	}
 
 	if err := tmpl.Execute(&buf, data); err != nil {
@@ -443,6 +452,23 @@ func writeBlogListing(outputDir string, posts []post, siteCfg SiteConfig) error 
 		return fmt.Errorf("mkdir %s: %w", outputDir, err)
 	}
 	return os.WriteFile(outPath, buf.Bytes(), 0644)
+}
+
+// cssVersionQuery returns a "?v=<hash>" suffix for style.css links. The hash
+// follows the stylesheet's content, so browsers and CDNs that cached an older
+// copy fetch the new one as soon as it changes.
+func cssVersionQuery(cssBytes []byte) string {
+	sum := sha256.Sum256(cssBytes)
+	return "?v=" + hex.EncodeToString(sum[:4])
+}
+
+// linksCSS reports whether the HTML file at path links the stylesheet href.
+func linksCSS(path, href string) bool {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return false
+	}
+	return bytes.Contains(data, []byte(`href="`+template.HTMLEscapeString(href)+`"`))
 }
 
 func buildCSS() []byte {
@@ -480,7 +506,7 @@ func copyStatic(outputDir string, cssBytes []byte) error {
 	return os.WriteFile(cssPath, cssBytes, 0644)
 }
 
-func writeTagIndexes(outputDir string, posts []post, siteCfg SiteConfig, cssBytes []byte) error {
+func writeTagIndexes(outputDir string, posts []post, siteCfg SiteConfig, cssBytes []byte, cssQuery string) error {
 	tagPosts := map[string][]post{}
 	for _, p := range posts {
 		for _, tag := range p.Meta.Tags {
@@ -493,7 +519,7 @@ func writeTagIndexes(outputDir string, posts []post, siteCfg SiteConfig, cssByte
 
 		cfg := siteCfg
 		cfg.Title = fmt.Sprintf("Tag: %s - %s", tag, siteCfg.Title)
-		if err := writeBlogListing(tagDir, tPosts, cfg); err != nil {
+		if err := writeBlogListing(tagDir, tPosts, cfg, cssQuery); err != nil {
 			return err
 		}
 		// Copy style.css so the relative link works

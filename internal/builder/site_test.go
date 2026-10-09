@@ -147,11 +147,34 @@ This is a **bold** test.`
 	if err != nil {
 		t.Fatalf("reading no-embed post: %v", err)
 	}
-	if !strings.Contains(string(noEmbedHTML), `href="../../../../style.css"`) {
-		t.Errorf("post does not link style.css with a relative path; got:\n%s", noEmbedHTML)
+	cssQuery := cssVersionQuery(buildCSS())
+	if !strings.Contains(string(noEmbedHTML), `href="../../../../style.css`+cssQuery+`"`) {
+		t.Errorf("post does not link style.css with a relative, versioned path; got:\n%s", noEmbedHTML)
 	}
-	if strings.Contains(string(noEmbedHTML), `href="/style.css"`) {
+	if strings.Contains(string(noEmbedHTML), `href="/style.css`) {
 		t.Errorf("post still links style.css with a root-absolute path")
+	}
+	listingHTML, err := os.ReadFile(filepath.Join(noEmbedDir, "blog_entries.html"))
+	if err != nil {
+		t.Fatalf("reading listing: %v", err)
+	}
+	if !strings.Contains(string(listingHTML), `href="style.css`+cssQuery+`"`) {
+		t.Errorf("listing does not link a versioned style.css")
+	}
+
+	// A post that is up to date but links an older stylesheet version must be
+	// rebuilt, or browsers keep serving it the stale cached CSS.
+	postPath := filepath.Join(noEmbedDir, "2024/01/01", "post", "index.html")
+	stale := strings.Replace(string(noEmbedHTML), cssQuery, "?v=00000000", 1)
+	if err := os.WriteFile(postPath, []byte(stale), 0644); err != nil {
+		t.Fatalf("writing stale post: %v", err)
+	}
+	if err := Site(noEmbedDir, configPath, false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() (rebuild) failed: %v", err)
+	}
+	rebuilt, _ := os.ReadFile(postPath)
+	if !strings.Contains(string(rebuilt), cssQuery) {
+		t.Errorf("post linking an old stylesheet version was not rebuilt")
 	}
 
 	if _, err := os.Stat(filepath.Join(outDir, "blog_entries.html")); os.IsNotExist(err) {
