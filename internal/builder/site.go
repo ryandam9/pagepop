@@ -32,8 +32,11 @@ type SiteConfig struct {
 	Language    string `yaml:"language"`
 }
 
+// mdEntry names one Markdown file, or a directory whose *.md files are all
+// published.
 type mdEntry struct {
 	File string `yaml:"file"`
+	Dir  string `yaml:"dir"`
 }
 
 type mdConfig struct {
@@ -77,6 +80,55 @@ var (
 	reStripTags   = regexp.MustCompile(`<[^>]+>`)
 )
 
+// markdownFiles expands the markdown_files entries into a list of files. A dir
+// entry contributes the *.md files directly inside it, in name order; hidden
+// files and subdirectories are skipped. A file reached through more than one
+// entry is listed once.
+func markdownFiles(entries []mdEntry, log *logutil.Logger) []string {
+	var files []string
+	seen := map[string]bool{}
+	add := func(f string) {
+		key := filepath.Clean(f)
+		if abs, err := filepath.Abs(key); err == nil {
+			key = abs
+		}
+		if seen[key] {
+			return
+		}
+		seen[key] = true
+		files = append(files, f)
+	}
+
+	for _, e := range entries {
+		if (e.File == "") == (e.Dir == "") {
+			log.Warn("markdown_files entry needs exactly one of file or dir")
+			continue
+		}
+		if e.File != "" {
+			add(e.File)
+			continue
+		}
+		dirEntries, err := os.ReadDir(e.Dir)
+		if err != nil {
+			log.Warn("reading markdown dir %s: %v", e.Dir, err)
+			continue
+		}
+		found := 0
+		for _, d := range dirEntries {
+			name := d.Name()
+			if d.IsDir() || strings.HasPrefix(name, ".") || !strings.EqualFold(filepath.Ext(name), ".md") {
+				continue
+			}
+			add(filepath.Join(e.Dir, name))
+			found++
+		}
+		if found == 0 {
+			log.Warn("markdown dir %s contains no .md files", e.Dir)
+		}
+	}
+	return files
+}
+
 // Site builds the blog directory from a YAML config file.
 //
 // Output layout:
@@ -118,10 +170,10 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 
 	var posts []post
 
-	for _, entry := range cfg.MarkdownFiles {
-		p, err := processFile(entry.File, outputDir, cssBytes, cssQuery, embedStyles, tocTop, cfg.Site, log)
+	for _, file := range markdownFiles(cfg.MarkdownFiles, log) {
+		p, err := processFile(file, outputDir, cssBytes, cssQuery, embedStyles, tocTop, cfg.Site, log)
 		if err != nil {
-			log.Warn("processing file %s: %v", entry.File, err)
+			log.Warn("processing file %s: %v", file, err)
 			continue
 		}
 		posts = append(posts, p)

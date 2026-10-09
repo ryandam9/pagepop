@@ -360,3 +360,49 @@ html_pages:
 		t.Errorf("listing not sorted newest first")
 	}
 }
+
+func TestMarkdownDir(t *testing.T) {
+	tempDir := t.TempDir()
+	write := func(rel, content string) {
+		p := filepath.Join(tempDir, rel)
+		if err := os.MkdirAll(filepath.Dir(p), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(p, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	posts := filepath.Join(tempDir, "posts")
+	write("posts/2025.01.02-first.md", "# First\n\nbody")
+	write("posts/second.MD", "# Second\n- Created - 2025/01/03\n\nbody")
+	write("posts/notes.txt", "not markdown")
+	write("posts/.hidden.md", "# Hidden")
+	write("posts/drafts/draft.md", "# Draft")
+
+	// The second file is also listed on its own; it must be built only once.
+	config := fmt.Sprintf("markdown_files:\n  - dir: %s\n  - file: %s\n",
+		filepath.ToSlash(posts), filepath.ToSlash(filepath.Join(posts, "second.MD")))
+	write("cfg.yml", config)
+
+	got := markdownFiles([]mdEntry{{Dir: posts}, {File: filepath.Join(posts, "second.MD")}}, logutil.NewDiscard())
+	want := []string{filepath.Join(posts, "2025.01.02-first.md"), filepath.Join(posts, "second.MD")}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("markdownFiles() = %v, want %v", got, want)
+	}
+
+	out := filepath.Join(tempDir, "blog")
+	if err := Site(out, filepath.Join(tempDir, "cfg.yml"), false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() failed: %v", err)
+	}
+	for _, rel := range []string{"2025/01/02/first/index.html", "2025/01/03/second/index.html"} {
+		if _, err := os.Stat(filepath.Join(out, rel)); err != nil {
+			t.Errorf("expected %s: %v", rel, err)
+		}
+	}
+	for _, rel := range []string{"1900/01/01/hidden", "1900/01/01/draft"} {
+		if _, err := os.Stat(filepath.Join(out, rel)); err == nil {
+			t.Errorf("%s should not have been built", rel)
+		}
+	}
+}

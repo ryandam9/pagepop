@@ -11,7 +11,7 @@ A lightweight static site generator written in Go. Point it at a list of Markdow
 - **Smooth navigation** — table-of-contents links glide to their section instead of jumping
 - **HTML pages** — publish ready-made HTML pages (single files or whole folders) alongside the posts
 - **Embedded X posts** — a link to a post on X/Twitter on its own line becomes an embedded post
-- **Zero config** — only a YAML list of Markdown files is required
+- **Zero config** — only a YAML list of Markdown files (or folders of them) is required
 
 ## Output layout
 
@@ -55,6 +55,17 @@ markdown_files:
 ```
 
 Paths can be absolute or relative to the working directory.
+
+To publish every post in a folder without listing each one, use `dir:`. It
+picks up the `*.md` files directly inside the folder; subfolders and hidden
+files are ignored. `dir:` and `file:` entries can be mixed, and a file reached
+through both is built once.
+
+```yaml
+markdown_files:
+  - dir: /path/to/blog-posts
+  - file: /path/to/elsewhere/another-post.md
+```
 
 Then run:
 
