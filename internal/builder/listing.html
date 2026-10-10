@@ -28,7 +28,7 @@
                 <article>
                     <time class="post-date" datetime='{{.Meta.Date.Format "2006-01-02"}}'>{{.Meta.Date.Format "Jan 02"}}</time>
                     <div class="post-main">
-                        <a href='{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html' class="post-link">
+                        <a href='{{$.Root}}{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html' class="post-link">
                             <h2 class="post-title">{{.Meta.Title}}</h2>
                         </a>
                         {{if .Meta.Description}}<p class="post-desc">{{.Meta.Description}}</p>{{end}}

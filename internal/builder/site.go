@@ -203,7 +203,7 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 		return posts[i].Meta.Date.After(posts[j].Meta.Date)
 	})
 
-	if err := writeBlogListing(outputDir, posts, cfg.Site, cssQuery); err != nil {
+	if err := writeBlogListing(outputDir, "", posts, cfg.Site, cssQuery); err != nil {
 		return fmt.Errorf("writing blog listing: %w", err)
 	}
 
@@ -474,7 +474,10 @@ func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref str
 	return buf.String(), nil
 }
 
-func writeBlogListing(outputDir string, posts []post, siteCfg SiteConfig, cssQuery string) error {
+// writeBlogListing renders blog_entries.html into outputDir. root is the
+// relative path from outputDir back to the site root (e.g. "../../" for tag
+// pages) and is prefixed to every post link.
+func writeBlogListing(outputDir, root string, posts []post, siteCfg SiteConfig, cssQuery string) error {
 	tmpl, err := template.New("listing").Parse(listingTemplate)
 	if err != nil {
 		return err
@@ -485,10 +488,12 @@ func writeBlogListing(outputDir string, posts []post, siteCfg SiteConfig, cssQue
 		Posts    []post
 		Site     SiteConfig
 		CSSQuery string
+		Root     string
 	}{
 		Posts:    posts,
 		Site:     siteCfg,
 		CSSQuery: cssQuery,
+		Root:     root,
 	}
 
 	if err := tmpl.Execute(&buf, data); err != nil {
@@ -571,7 +576,7 @@ func writeTagIndexes(outputDir string, posts []post, siteCfg SiteConfig, cssByte
 
 		cfg := siteCfg
 		cfg.Title = fmt.Sprintf("Tag: %s - %s", tag, siteCfg.Title)
-		if err := writeBlogListing(tagDir, tPosts, cfg, cssQuery); err != nil {
+		if err := writeBlogListing(tagDir, "../../", tPosts, cfg, cssQuery); err != nil {
 			return err
 		}
 		// Copy style.css so the relative link works
