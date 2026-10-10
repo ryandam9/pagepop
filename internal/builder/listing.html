@@ -16,21 +16,28 @@
 
     <main class="listing">
         <h1>{{.Site.Title}}</h1>
+        <p class="listing-count">{{len .Posts}} posts</p>
         <ul class="post-list">
+            {{$year := ""}}
             {{range .Posts}}
+            {{$y := .Meta.Date.Format "2006"}}
+            {{if ne $y $year}}{{$year = $y}}
+            <li class="post-year" aria-hidden="true">{{$y}}</li>
+            {{end}}
             <li class="post-item">
                 <article>
-                    <a href='{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html' class="post-link">
-                        <h2 class="post-title">{{.Meta.Title}}</h2>
-                    </a>
-                    <p class="post-desc">{{.Meta.Description}}</p>
+                    <time class="post-date" datetime='{{.Meta.Date.Format "2006-01-02"}}'>{{.Meta.Date.Format "Jan 02"}}</time>
+                    <div class="post-main">
+                        <a href='{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html' class="post-link">
+                            <h2 class="post-title">{{.Meta.Title}}</h2>
+                        </a>
+                        {{if .Meta.Description}}<p class="post-desc">{{.Meta.Description}}</p>{{end}}
+                    </div>
                     {{if .Meta.Tags}}
                     <div class="post-tags">
-                        <i class="fa-solid fa-tags"></i>
                         {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
                     </div>
                     {{end}}
-                    <time class="post-date"><i class="fa-regular fa-calendar"></i> {{.Meta.Date.Format "January 2, 2006"}}</time>
                 </article>
             </li>
             {{end}}
