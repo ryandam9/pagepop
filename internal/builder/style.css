@@ -113,47 +113,118 @@ a:hover {
 .listing h1 {
     font-size: 3rem;
     font-weight: 800;
-    margin-bottom: 4rem;
     letter-spacing: -0.04em;
+    line-height: 1.1;
+}
+
+.listing-count {
+    font-family: 'Overpass Mono', monospace;
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    margin: 0.5rem 0 2.5rem;
 }
 
 .post-list {
     list-style: none;
 }
 
-.post-item {
-    padding: 2.5rem 0;
-    border-bottom: 1px solid var(--border);
-    transition: transform 0.2s ease;
-}
-
-.post-item:last-child {
-    border-bottom: none;
-}
-
-.post-link {
-    display: inline-block;
-    text-decoration: none !important;
-    margin-bottom: 0.75rem;
-}
-
-.post-title {
-    font-size: 1.875rem;
-    font-weight: 800;
-    color: var(--text);
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    transition: color 0.2s;
-}
-
-.post-link:hover .post-title {
+.post-year {
+    font-family: 'Overpass Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
     color: var(--accent);
+    padding: 2rem 0 0.5rem;
+    border-bottom: 1px solid var(--border);
+    margin-bottom: 0.25rem;
+}
+
+.post-list > .post-year:first-child {
+    padding-top: 0;
+}
+
+.post-item article {
+    position: relative;
+    display: grid;
+    grid-template-columns: 4.5rem 1fr auto;
+    align-items: baseline;
+    gap: 0 1.25rem;
+    padding: 0.6rem 0.75rem;
+    margin: 0 -0.75rem;
+    border-radius: 8px;
+    transition: background 0.15s ease;
+}
+
+.post-item article:hover {
+    background: var(--bg-code);
 }
 
 .post-date {
     font-size: 0.9rem;
     color: var(--text-muted);
     font-weight: 500;
+}
+
+.post-item .post-date {
+    font-family: 'Overpass Mono', monospace;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    white-space: nowrap;
+    font-variant-numeric: tabular-nums;
+}
+
+.post-main {
+    min-width: 0;
+}
+
+.post-link {
+    text-decoration: none !important;
+}
+
+/* Make the whole row clickable */
+.post-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+}
+
+.post-link:focus-visible {
+    outline: none;
+}
+
+.post-link:focus-visible::after {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
+.post-title {
+    display: inline;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: var(--text);
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+    transition: color 0.15s;
+}
+
+.post-item article:hover .post-title {
+    color: var(--accent);
+}
+
+.post-item .post-title::after {
+    content: "\2192";
+    display: inline-block;
+    margin-left: 0.4rem;
+    color: var(--accent);
+    opacity: 0;
+    transform: translateX(-4px);
+    transition: opacity 0.15s, transform 0.15s;
+}
+
+.post-item article:hover .post-title::after {
+    opacity: 1;
+    transform: translateX(0);
 }
 
 .post-desc {
@@ -164,18 +235,33 @@ a:hover {
     margin-bottom: 1rem;
 }
 
+.post-item .post-desc {
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin: 0.15rem 0 0;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: none;
+}
+
 .post-header .post-desc {
     max-width: 80ch;
     margin-left: auto;
     margin-right: auto;
 }
 
-.post-item .post-desc {
-    margin-bottom: 0.75rem;
-}
-
 .post-tags {
     margin-bottom: 0.5rem;
+}
+
+.post-item .post-tags {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: 0.3rem;
+    max-width: 18rem;
 }
 
 .tag {
@@ -191,9 +277,40 @@ a:hover {
     border: 1px solid var(--border);
 }
 
-.post-item:hover .tag {
-    border-color: var(--accent);
+.post-item .tag {
+    font-size: 0.65rem;
+    font-weight: 600;
+    text-transform: none;
+    letter-spacing: 0.02em;
+    line-height: 1.6;
+    padding: 0 0.45rem;
+    border-radius: 999px;
+    white-space: nowrap;
+    transition: color 0.15s, border-color 0.15s;
+}
+
+.post-item article:hover .tag {
+    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
     color: var(--accent);
+    background: var(--bg-card);
+}
+
+@media (max-width: 640px) {
+    .post-item article {
+        grid-template-columns: 1fr;
+        gap: 0.1rem;
+        line-height: 1.5;
+    }
+
+    .post-item .post-tags {
+        justify-content: flex-start;
+        max-width: none;
+        margin-top: 0.2rem;
+    }
+
+    .post-item .post-desc {
+        white-space: normal;
+    }
 }
 
 /* Blog post */

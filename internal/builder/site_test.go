@@ -355,6 +355,14 @@ html_pages:
 			t.Errorf("listing missing %q", want)
 		}
 	}
+	// Tag pages live two levels down, so post links must climb back to the root.
+	tagListing, err := os.ReadFile(filepath.Join(out, "tags", "demo", "blog_entries.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(tagListing), `href='../../2025/03/04/demo/index.html'`) {
+		t.Errorf("tag listing post link not relative to site root")
+	}
 	// Newest first.
 	if strings.Index(string(listing), "My Demo") > strings.Index(string(listing), "Stand &amp; Alone") {
 		t.Errorf("listing not sorted newest first")
