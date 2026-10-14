@@ -22,6 +22,7 @@
             --pl-muted: #52525b;
             --pl-faint: #a1a1aa;
             --pl-line: rgba(24, 24, 27, 0.08);
+            --pl-line-strong: rgba(24, 24, 27, 0.14);
             --pl-dot: rgba(24, 24, 27, 0.09);
             --pl-accent: #059669;
             --pl-accent-soft: rgba(16, 185, 129, 0.12);
@@ -37,6 +38,7 @@
                 --pl-muted: #a1a1aa;
                 --pl-faint: #71717a;
                 --pl-line: rgba(244, 244, 245, 0.08);
+                --pl-line-strong: rgba(244, 244, 245, 0.16);
                 --pl-dot: rgba(244, 244, 245, 0.07);
                 --pl-accent: #34d399;
                 --pl-accent-soft: rgba(52, 211, 153, 0.12);
@@ -261,71 +263,142 @@
             background: var(--pl-accent-soft);
         }
 
-        /* ---------- Years and posts ---------- */
+        /* ---------- Timeline ---------- */
+
+        /*
+         * A rail runs down the left of every year. Each year sits on it as a
+         * ring, and each post is its own card hanging off a dot on the rail.
+         * --pl-rail is the space left of the cards; --pl-x is the rail's centre.
+         */
+        .pl-timeline {
+            --pl-rail: 3rem;
+            --pl-x: 0.8rem;
+        }
 
         .pl-year {
-            display: grid;
-            grid-template-columns: 8rem 1fr;
-            gap: 2rem;
-            align-items: start;
-            margin-bottom: 2.5rem;
+            position: relative;
+            padding: 0 0 1.5rem var(--pl-rail);
+        }
+
+        .pl-year::before {
+            content: "";
+            position: absolute;
+            left: calc(var(--pl-x) - 1px);
+            top: 0.5rem;
+            bottom: 0;
+            width: 2px;
+            background: linear-gradient(var(--pl-line-strong), var(--pl-line-strong)) no-repeat;
+        }
+
+        .pl-year:last-of-type::before {
+            bottom: 2.5rem;
         }
 
         .pl-year h2 {
-            position: sticky;
-            top: 1.5rem;
-            margin: 0;
-            padding-top: 1.1rem;
-            font-size: 1.75rem;
+            position: relative;
+            margin: 0 0 1rem;
+            font-size: 1.6rem;
             font-weight: 800;
             letter-spacing: -0.04em;
             line-height: 1;
-            color: var(--pl-faint);
+            color: var(--pl-text);
             font-variant-numeric: tabular-nums;
+        }
+
+        .pl-year h2::before {
+            content: "";
+            position: absolute;
+            left: calc(var(--pl-x) - var(--pl-rail) - 0.6rem);
+            top: 50%;
+            width: 1.2rem;
+            height: 1.2rem;
+            border-radius: 50%;
+            background: var(--pl-bg);
+            border: 3px solid var(--pl-accent);
+            transform: translateY(-50%);
         }
 
         .pl-posts {
             list-style: none;
             margin: 0;
             padding: 0;
-            border-radius: 1.5rem;
-            background: var(--pl-surface);
-            border: 1px solid var(--pl-line);
-            box-shadow: var(--pl-shadow);
-            overflow: hidden;
+            display: grid;
+            gap: 0.9rem;
         }
 
         .pl-post {
             position: relative;
             display: grid;
-            grid-template-columns: 4.5rem 1fr auto;
-            gap: 0.25rem 1.25rem;
-            align-items: baseline;
-            padding: 1.15rem 1.5rem;
-            border-top: 1px solid var(--pl-line);
-            transition: background-color 0.2s ease;
+            grid-template-columns: 1fr auto;
+            gap: 0.2rem 1rem;
+            padding: 1.1rem 1.4rem 1.2rem;
+            border-radius: 1.25rem;
+            background: var(--pl-surface);
+            border: 1px solid var(--pl-line);
+            box-shadow: var(--pl-shadow);
+            transition: border-color 0.25s ease, transform 0.35s var(--pl-ease);
         }
 
-        .pl-post:first-child {
-            border-top: 0;
+        /* The dot on the rail, and the short branch out to the card. */
+        .pl-post::before {
+            content: "";
+            position: absolute;
+            left: calc(var(--pl-x) - var(--pl-rail) - 0.4rem);
+            top: 1.45rem;
+            width: 0.8rem;
+            height: 0.8rem;
+            border-radius: 50%;
+            background: var(--pl-bg);
+            border: 2px solid var(--pl-faint);
+            transition: background-color 0.25s ease, border-color 0.25s ease, transform 0.35s var(--pl-ease);
+        }
+
+        .pl-branch {
+            position: absolute;
+            left: calc(var(--pl-x) - var(--pl-rail) + 0.4rem);
+            right: 100%;
+            top: calc(1.85rem - 1px);
+            height: 2px;
+            background: var(--pl-line-strong);
+            transition: background-color 0.25s ease;
         }
 
         .pl-post:hover,
         .pl-post:focus-within {
-            background: var(--pl-accent-soft);
+            border-color: color-mix(in srgb, var(--pl-accent) 45%, transparent);
+            transform: translateX(4px);
+        }
+
+        .pl-post:hover::before,
+        .pl-post:focus-within::before {
+            background: var(--pl-accent);
+            border-color: var(--pl-accent);
+            transform: scale(1.2);
+        }
+
+        .pl-post:hover .pl-branch,
+        .pl-post:focus-within .pl-branch {
+            background: var(--pl-accent);
         }
 
         .pl-date {
-            font-size: 0.8rem;
-            font-weight: 600;
+            grid-column: 1;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
             color: var(--pl-faint);
             font-variant-numeric: tabular-nums;
-            white-space: nowrap;
+        }
+
+        .pl-date:empty {
+            display: none;
         }
 
         .pl-post h3 {
+            grid-column: 1;
             margin: 0;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 700;
             letter-spacing: -0.015em;
             line-height: 1.35;
@@ -335,11 +408,12 @@
             color: var(--pl-text);
         }
 
-        /* The title link covers the whole row; the tag links sit above it. */
+        /* The title link covers the whole card; the tag links sit above it. */
         .pl-post h3 a::after {
             content: "";
             position: absolute;
             inset: 0;
+            border-radius: inherit;
         }
 
         .pl-post:hover h3 a,
@@ -349,10 +423,10 @@
         }
 
         .pl-summary {
-            grid-column: 2;
-            margin: 0;
+            grid-column: 1;
+            margin: 0.15rem 0 0;
             color: var(--pl-muted);
-            font-size: 0.9rem;
+            font-size: 0.92rem;
             line-height: 1.55;
             display: -webkit-box;
             -webkit-line-clamp: 2;
@@ -361,8 +435,8 @@
         }
 
         .pl-post .pl-tags {
-            grid-column: 2;
-            margin-top: 0.4rem;
+            grid-column: 1;
+            margin-top: 0.55rem;
             gap: 0.35rem;
         }
 
@@ -375,8 +449,8 @@
         }
 
         .pl-arrow {
-            grid-column: 3;
-            grid-row: 1;
+            grid-column: 2;
+            grid-row: 1 / span 2;
             align-self: center;
             width: 1.1rem;
             height: 1.1rem;
@@ -408,25 +482,18 @@
                 padding: 3rem 0 1.5rem;
             }
 
-            .pl-year {
-                grid-template-columns: 1fr;
-                gap: 0.75rem;
-            }
-
-            .pl-year h2 {
-                position: static;
-                font-size: 1.4rem;
-                padding: 0 0 0 0.25rem;
+            .pl-timeline {
+                --pl-rail: 2rem;
+                --pl-x: 0.55rem;
             }
 
             .pl-post {
-                grid-template-columns: 1fr;
-                padding: 1rem 1.25rem;
+                padding: 1rem 1.15rem 1.1rem;
             }
 
-            .pl-summary,
-            .pl-post .pl-tags {
-                grid-column: 1;
+            .pl-post:hover,
+            .pl-post:focus-within {
+                transform: none;
             }
 
             .pl-arrow {
@@ -504,6 +571,7 @@
                 {{end}}
             </div>
 
+            <div class="pl-timeline">
             {{- $year := ""}}
             {{- range .Posts}}
             {{- $y := .Meta.Date.Format "2006"}}
@@ -518,6 +586,7 @@
                 <ul class="pl-posts">
             {{- end}}
                     <li class="pl-post">
+                        <span class="pl-branch" aria-hidden="true"></span>
                         {{if undated .Meta.Date}}<span class="pl-date"></span>{{else}}<time class="pl-date" datetime='{{.Meta.Date.Format "2006-01-02"}}'>{{.Meta.Date.Format "Jan 02"}}</time>{{end}}
                         <h3><a href='{{$.Root}}{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html'>{{.Meta.Title}}</a></h3>
                         <svg class="pl-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
@@ -538,6 +607,7 @@
                 </ul>
             </section>
             {{- end}}
+            </div>
 
             <p class="pl-empty" id="pl-empty" hidden>No posts match your search.</p>
         </main>
