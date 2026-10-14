@@ -97,8 +97,7 @@ site:
 ```
 
 The listing groups posts by year, newest first, with a search box and the
-site's tags. Each row shows the post's `Description`, or else the start of its
-first paragraph, and its tags. Undated posts are grouped under "Undated".
+site's tags. Each row shows the post's date, title and tags. Undated posts are grouped under "Undated".
 `listing_file` names both the main listing and each tag's listing, so setting
 it to `index.html` lets a host serve the listings as directory indexes.
 
@@ -136,7 +135,7 @@ Metadata is read from structured list items at the top of each file. The `# Titl
 
 - Created - 2024/06/01
 - Tags - go, web, tools
-- Description - A short summary shown in the listing.
+- Description - A short summary shown below the title.
 
 Body content starts here...
 ```
@@ -145,7 +144,7 @@ Body content starts here...
 |-------|--------|----------|-------------|
 | `Created` | `YYYY/MM/DD` | Recommended | Publication date — sets the output path and listing sort order |
 | `Tags` | comma-separated | No | Labels shown on the post and in the listing; each tag gets its own listing under `tags/<tag>/` |
-| `Description` | plain text | No | Subtitle shown below the title and in the listing |
+| `Description` | plain text | No | Subtitle shown below the title |
 
 > **Note:** If `Created` is missing the post is placed under `1900/01/01/` and sorts to the bottom of the listing.
 
