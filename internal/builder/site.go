@@ -6,7 +6,6 @@ import (
 	_ "embed"
 	"encoding/hex"
 	"fmt"
-	stdhtml "html"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -539,16 +538,10 @@ func writeBlogListing(outputDir, root, tag string, posts []post, tags []tagCount
 	return os.WriteFile(outPath, buf.Bytes(), 0644)
 }
 
-// maxSummary caps the listing summary taken from a post's first paragraph.
-const maxSummary = 180
-
-var reFirstPara = regexp.MustCompile(`(?s)<p>(.*?)</p>`)
-
 var listingFuncs = template.FuncMap{
 	"tagSlug": tagSlug,
 	// undated reports the 1900/01/01 placeholder given to posts with no date.
 	"undated": func(t time.Time) bool { return t.Year() == 1900 },
-	"summary": summary,
 	"initial": func(s string) string {
 		for _, r := range s {
 			return strings.ToUpper(string(r))
@@ -559,27 +552,6 @@ var listingFuncs = template.FuncMap{
 
 func tagSlug(tag string) string {
 	return reSlugClean.ReplaceAllString(strings.ToLower(tag), "")
-}
-
-// summary is the post's Description, or else the start of its first
-// paragraph, so that posts without a Description still say what they are.
-func summary(p post) string {
-	if p.Meta.Description != "" {
-		return p.Meta.Description
-	}
-	m := reFirstPara.FindStringSubmatch(string(p.Body))
-	if m == nil {
-		return ""
-	}
-	text := strings.Join(strings.Fields(stdhtml.UnescapeString(reStripTags.ReplaceAllString(m[1], ""))), " ")
-	if r := []rune(text); len(r) > maxSummary {
-		cut := string(r[:maxSummary])
-		if i := strings.LastIndex(cut, " "); i > 0 {
-			cut = cut[:i]
-		}
-		text = strings.TrimRight(cut, " ,.;:") + "…"
-	}
-	return text
 }
 
 // countTags lists every tag with the number of posts carrying it, most used

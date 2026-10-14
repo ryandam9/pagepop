@@ -422,17 +422,6 @@
             outline: none;
         }
 
-        .pl-summary {
-            grid-column: 1;
-            margin: 0.15rem 0 0;
-            color: var(--pl-muted);
-            font-size: 0.92rem;
-            line-height: 1.55;
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
 
         .pl-post .pl-tags {
             grid-column: 1;
@@ -595,7 +584,6 @@
                             <line x1="5" y1="12" x2="19" y2="12"></line>
                             <polyline points="12 5 19 12 12 19"></polyline>
                         </svg>
-                        {{with summary .}}<p class="pl-summary">{{.}}</p>{{end}}
                         {{- if .Meta.Tags}}
                         <ul class="pl-tags" aria-label="Tags">
                             {{range .Meta.Tags}}<li><a class="pl-chip" href='{{$.Root}}tags/{{tagSlug .}}/{{$.Site.ListingFile}}'>{{.}}</a></li>{{end}}

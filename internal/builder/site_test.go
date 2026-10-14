@@ -346,10 +346,8 @@ html_pages:
 	for _, want := range []string{
 		`href='2025/02/03/standalone/index.html'`,
 		`Stand &amp; Alone`,
-		`From the page`,
 		`href='2025/03/04/demo/index.html'`,
 		`My Demo`,
-		`Interactive demo`,
 	} {
 		if !strings.Contains(string(listing), want) {
 			t.Errorf("listing missing %q", want)
@@ -448,8 +446,6 @@ func TestListing(t *testing.T) {
 	}
 	for _, want := range []string{
 		`href="/"`,                    // home_url
-		`Given summary.`,              // Description wins over the body
-		`First paragraph &amp; more.`, // no Description: first paragraph, tags stripped
 		`>Undated</h2>`,               // 1900/01/01 placeholder
 		`href='tags/go/index.html'`,   // tag links use listing_file
 		`Go <small>2</small>`,         // "Go" and "go" share one tag page
@@ -459,8 +455,11 @@ func TestListing(t *testing.T) {
 			t.Errorf("listing missing %q", want)
 		}
 	}
-	if strings.Contains(string(listing), "Ignored paragraph") || strings.Contains(string(listing), "Second paragraph") {
-		t.Errorf("listing summary used the wrong text")
+	// The listing shows titles only: no description and no text from the post.
+	for _, unwanted := range []string{"Given summary.", "First", "paragraph"} {
+		if strings.Contains(string(listing), unwanted) {
+			t.Errorf("listing should not contain %q", unwanted)
+		}
 	}
 
 	tagListing, err := os.ReadFile(filepath.Join(out, "tags", "go", "index.html"))
@@ -489,13 +488,5 @@ func TestListingFileMustBeAFileName(t *testing.T) {
 	}
 	if err := Site(filepath.Join(tempDir, "out"), cfg, false, false, false, logutil.NewDiscard()); err == nil {
 		t.Errorf("a listing_file with a path should be rejected")
-	}
-}
-
-func TestSummaryTruncates(t *testing.T) {
-	long := strings.Repeat("word ", 100)
-	got := summary(post{Body: template.HTML("<p>" + long + "</p>")})
-	if !strings.HasSuffix(got, "…") || len([]rune(got)) > maxSummary+1 {
-		t.Errorf("summary not truncated: %q", got)
 	}
 }
