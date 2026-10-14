@@ -33,11 +33,6 @@
                         </a>
                         {{if .Meta.Description}}<p class="post-desc">{{.Meta.Description}}</p>{{end}}
                     </div>
-                    {{if .Meta.Tags}}
-                    <div class="post-tags">
-                        {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
-                    </div>
-                    {{end}}
                 </article>
             </li>
             {{end}}

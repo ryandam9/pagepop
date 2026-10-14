@@ -146,7 +146,7 @@ a:hover {
 .post-item article {
     position: relative;
     display: grid;
-    grid-template-columns: 4.5rem 1fr auto;
+    grid-template-columns: 4.5rem 1fr;
     align-items: baseline;
     gap: 0 1.25rem;
     padding: 0.6rem 0.75rem;
@@ -255,15 +255,6 @@ a:hover {
     margin-bottom: 0.5rem;
 }
 
-.post-item .post-tags {
-    margin: 0;
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.3rem;
-    max-width: 18rem;
-}
-
 .tag {
     display: inline-block;
     font-size: 0.7rem;
@@ -277,35 +268,11 @@ a:hover {
     border: 1px solid var(--border);
 }
 
-.post-item .tag {
-    font-size: 0.65rem;
-    font-weight: 600;
-    text-transform: none;
-    letter-spacing: 0.02em;
-    line-height: 1.6;
-    padding: 0 0.45rem;
-    border-radius: 999px;
-    white-space: nowrap;
-    transition: color 0.15s, border-color 0.15s;
-}
-
-.post-item article:hover .tag {
-    border-color: color-mix(in srgb, var(--accent) 50%, var(--border));
-    color: var(--accent);
-    background: var(--bg-card);
-}
-
 @media (max-width: 640px) {
     .post-item article {
         grid-template-columns: 1fr;
         gap: 0.1rem;
         line-height: 1.5;
-    }
-
-    .post-item .post-tags {
-        justify-content: flex-start;
-        max-width: none;
-        margin-top: 0.2rem;
     }
 
     .post-item .post-desc {
