@@ -20,7 +20,8 @@ Each post is placed under a date-based path derived from its `Created` front mat
 ```
 blog/
 ├── style.css                        # shared stylesheet
-├── blog_entries.html                # post listing (newest first)
+├── blog_entries.html                # post listing (newest first; see site.listing_file)
+├── tags/<tag>/blog_entries.html     # one listing per tag
 └── YYYY/
     └── MM/
         └── DD/
@@ -80,6 +81,27 @@ Then run:
 | `--embed-styles` | `false` | Copy `style.css` into each post directory for standalone pages |
 | `--toc-top` | `false` | Render the table of contents at the top of the post instead of in a left sidebar on large screens |
 
+### Site settings
+
+An optional `site:` block sets the details shown on the pages:
+
+```yaml
+site:
+  title: My Site            # listing and page titles (default: Blog)
+  description: Notes        # listing meta description, RSS description
+  author: Me
+  language: en              # <html lang> (default: en)
+  base_url: https://example.com  # enables feed.xml and sitemap.xml
+  home_url: /               # adds a Home link back to the main site
+  listing_file: index.html  # listing file name (default: blog_entries.html)
+```
+
+The listing groups posts by year, newest first, with a search box and the
+site's tags. Each row shows the post's `Description`, or else the start of its
+first paragraph, and its tags. Undated posts are grouped under "Undated".
+`listing_file` names both the main listing and each tag's listing, so setting
+it to `index.html` lets a host serve the listings as directory indexes.
+
 By default the table of contents sits in a sticky left sidebar on wide
 screens (≥1200px) and collapses above the content on narrower ones. Pass
 `--toc-top` to always place it at the top, right after the title.
@@ -122,7 +144,7 @@ Body content starts here...
 | Field | Format | Required | Description |
 |-------|--------|----------|-------------|
 | `Created` | `YYYY/MM/DD` | Recommended | Publication date — sets the output path and listing sort order |
-| `Tags` | comma-separated | No | Labels shown on the post and in the listing |
+| `Tags` | comma-separated | No | Labels shown on the post and in the listing; each tag gets its own listing under `tags/<tag>/` |
 | `Description` | plain text | No | Subtitle shown below the title and in the listing |
 
 > **Note:** If `Created` is missing the post is placed under `1900/01/01/` and sorts to the bottom of the listing.

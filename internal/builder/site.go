@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"encoding/hex"
 	"fmt"
+	stdhtml "html"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -30,7 +31,21 @@ type SiteConfig struct {
 	BaseURL     string `yaml:"base_url"`
 	Description string `yaml:"description"`
 	Language    string `yaml:"language"`
+	// HomeURL, when set, adds a link back to the main site from the listing.
+	HomeURL string `yaml:"home_url"`
+	// ListingFile names the listing page written to the output directory and
+	// to each tag directory. Default: blog_entries.html.
+	ListingFile string `yaml:"listing_file"`
 }
+
+// tagCount is one entry in the listing's tag index.
+type tagCount struct {
+	Name  string
+	Slug  string
+	Count int
+}
+
+const defaultListingFile = "blog_entries.html"
 
 // mdEntry names one Markdown file, or a directory whose *.md files are all
 // published.
@@ -162,6 +177,12 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	if cfg.Site.Language == "" {
 		cfg.Site.Language = "en"
 	}
+	if cfg.Site.ListingFile == "" {
+		cfg.Site.ListingFile = defaultListingFile
+	}
+	if cfg.Site.ListingFile != filepath.Base(cfg.Site.ListingFile) || !strings.HasSuffix(cfg.Site.ListingFile, ".html") {
+		return fmt.Errorf("site.listing_file must be a plain .html file name, got %q", cfg.Site.ListingFile)
+	}
 	// Remove trailing slash from base url
 	cfg.Site.BaseURL = strings.TrimSuffix(cfg.Site.BaseURL, "/")
 
@@ -203,11 +224,13 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 		return posts[i].Meta.Date.After(posts[j].Meta.Date)
 	})
 
-	if err := writeBlogListing(outputDir, "", posts, cfg.Site, cssQuery); err != nil {
+	tags := countTags(posts)
+
+	if err := writeBlogListing(outputDir, "", "", posts, tags, cfg.Site, cssQuery); err != nil {
 		return fmt.Errorf("writing blog listing: %w", err)
 	}
 
-	if err := writeTagIndexes(outputDir, posts, cfg.Site, cssBytes, cssQuery); err != nil {
+	if err := writeTagIndexes(outputDir, posts, tags, cfg.Site, cssBytes, cssQuery); err != nil {
 		return fmt.Errorf("writing tag indexes: %w", err)
 	}
 
@@ -474,11 +497,12 @@ func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref str
 	return buf.String(), nil
 }
 
-// writeBlogListing renders blog_entries.html into outputDir. root is the
-// relative path from outputDir back to the site root (e.g. "../../" for tag
-// pages) and is prefixed to every post link.
-func writeBlogListing(outputDir, root string, posts []post, siteCfg SiteConfig, cssQuery string) error {
-	tmpl, err := template.New("listing").Parse(listingTemplate)
+// writeBlogListing renders the listing page (site.listing_file) into
+// outputDir. root is the relative path from outputDir back to the site root
+// (e.g. "../../" for tag pages) and is prefixed to every post and tag link.
+// tag is the tag a tag page lists, empty for the main listing.
+func writeBlogListing(outputDir, root, tag string, posts []post, tags []tagCount, siteCfg SiteConfig, cssQuery string) error {
+	tmpl, err := template.New("listing").Funcs(listingFuncs).Parse(listingTemplate)
 	if err != nil {
 		return err
 	}
@@ -486,11 +510,15 @@ func writeBlogListing(outputDir, root string, posts []post, siteCfg SiteConfig, 
 	var buf bytes.Buffer
 	data := struct {
 		Posts    []post
+		Tags     []tagCount
+		Tag      string
 		Site     SiteConfig
 		CSSQuery string
 		Root     string
 	}{
 		Posts:    posts,
+		Tags:     tags,
+		Tag:      tag,
 		Site:     siteCfg,
 		CSSQuery: cssQuery,
 		Root:     root,
@@ -500,7 +528,7 @@ func writeBlogListing(outputDir, root string, posts []post, siteCfg SiteConfig, 
 		return err
 	}
 
-	outPath := filepath.Join(outputDir, "blog_entries.html")
+	outPath := filepath.Join(outputDir, siteCfg.ListingFile)
 	// Only write if content actually changed to avoid bumping the mtime.
 	if existing, err := os.ReadFile(outPath); err == nil && bytes.Equal(existing, buf.Bytes()) {
 		return nil
@@ -509,6 +537,79 @@ func writeBlogListing(outputDir, root string, posts []post, siteCfg SiteConfig, 
 		return fmt.Errorf("mkdir %s: %w", outputDir, err)
 	}
 	return os.WriteFile(outPath, buf.Bytes(), 0644)
+}
+
+// maxSummary caps the listing summary taken from a post's first paragraph.
+const maxSummary = 180
+
+var reFirstPara = regexp.MustCompile(`(?s)<p>(.*?)</p>`)
+
+var listingFuncs = template.FuncMap{
+	"tagSlug": tagSlug,
+	// undated reports the 1900/01/01 placeholder given to posts with no date.
+	"undated": func(t time.Time) bool { return t.Year() == 1900 },
+	"summary": summary,
+	"initial": func(s string) string {
+		for _, r := range s {
+			return strings.ToUpper(string(r))
+		}
+		return ""
+	},
+}
+
+func tagSlug(tag string) string {
+	return reSlugClean.ReplaceAllString(strings.ToLower(tag), "")
+}
+
+// summary is the post's Description, or else the start of its first
+// paragraph, so that posts without a Description still say what they are.
+func summary(p post) string {
+	if p.Meta.Description != "" {
+		return p.Meta.Description
+	}
+	m := reFirstPara.FindStringSubmatch(string(p.Body))
+	if m == nil {
+		return ""
+	}
+	text := strings.Join(strings.Fields(stdhtml.UnescapeString(reStripTags.ReplaceAllString(m[1], ""))), " ")
+	if r := []rune(text); len(r) > maxSummary {
+		cut := string(r[:maxSummary])
+		if i := strings.LastIndex(cut, " "); i > 0 {
+			cut = cut[:i]
+		}
+		text = strings.TrimRight(cut, " ,.;:") + "…"
+	}
+	return text
+}
+
+// countTags lists every tag with the number of posts carrying it, most used
+// first. Tags that differ only in case share one tag page, so they are merged.
+func countTags(posts []post) []tagCount {
+	bySlug := map[string]*tagCount{}
+	for _, p := range posts {
+		for _, t := range p.Meta.Tags {
+			slug := tagSlug(t)
+			if slug == "" {
+				continue
+			}
+			if tc, ok := bySlug[slug]; ok {
+				tc.Count++
+			} else {
+				bySlug[slug] = &tagCount{Name: t, Slug: slug, Count: 1}
+			}
+		}
+	}
+	tags := make([]tagCount, 0, len(bySlug))
+	for _, tc := range bySlug {
+		tags = append(tags, *tc)
+	}
+	sort.Slice(tags, func(i, j int) bool {
+		if tags[i].Count != tags[j].Count {
+			return tags[i].Count > tags[j].Count
+		}
+		return tags[i].Slug < tags[j].Slug
+	})
+	return tags
 }
 
 // cssVersionQuery returns a "?v=<hash>" suffix for style.css links. The hash
@@ -563,20 +664,24 @@ func copyStatic(outputDir string, cssBytes []byte) error {
 	return os.WriteFile(cssPath, cssBytes, 0644)
 }
 
-func writeTagIndexes(outputDir string, posts []post, siteCfg SiteConfig, cssBytes []byte, cssQuery string) error {
+func writeTagIndexes(outputDir string, posts []post, tags []tagCount, siteCfg SiteConfig, cssBytes []byte, cssQuery string) error {
 	tagPosts := map[string][]post{}
 	for _, p := range posts {
+		seen := map[string]bool{}
 		for _, tag := range p.Meta.Tags {
-			tagPosts[tag] = append(tagPosts[tag], p)
+			slug := tagSlug(tag)
+			if slug == "" || seen[slug] {
+				continue
+			}
+			seen[slug] = true
+			tagPosts[slug] = append(tagPosts[slug], p)
 		}
 	}
 
-	for tag, tPosts := range tagPosts {
-		tagDir := filepath.Join(outputDir, "tags", reSlugClean.ReplaceAllString(strings.ToLower(tag), ""))
+	for _, tc := range tags {
+		tagDir := filepath.Join(outputDir, "tags", tc.Slug)
 
-		cfg := siteCfg
-		cfg.Title = fmt.Sprintf("Tag: %s - %s", tag, siteCfg.Title)
-		if err := writeBlogListing(tagDir, "../../", tPosts, cfg, cssQuery); err != nil {
+		if err := writeBlogListing(tagDir, "../../", tc.Name, tagPosts[tc.Slug], tags, siteCfg, cssQuery); err != nil {
 			return err
 		}
 		// Copy style.css so the relative link works
