@@ -1,49 +1,576 @@
 <!doctype html>
-<html lang="en">
+<html lang="{{.Site.Language}}">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>{{.Site.Title}}</title>
+    <title>{{if .Tag}}Tag: {{.Tag}} - {{end}}{{.Site.Title}}</title>
+    {{if .Site.Description}}<meta name="description" content="{{.Site.Description}}" />{{end}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&family=Overpass+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css{{.CSSQuery}}" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
+    <style>
+        /*
+         * The listing has its own look, so everything here is scoped under
+         * .pl and set after style.css, which the posts share.
+         */
+        :root {
+            --pl-bg: #fafafa;
+            --pl-surface: #ffffff;
+            --pl-text: #18181b;
+            --pl-muted: #52525b;
+            --pl-faint: #a1a1aa;
+            --pl-line: rgba(24, 24, 27, 0.08);
+            --pl-dot: rgba(24, 24, 27, 0.09);
+            --pl-accent: #059669;
+            --pl-accent-soft: rgba(16, 185, 129, 0.12);
+            --pl-shadow: 0 1px 2px rgba(24, 24, 27, 0.04), 0 12px 32px -12px rgba(24, 24, 27, 0.14);
+            --pl-ease: cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        @media (prefers-color-scheme: dark) {
+            :root {
+                --pl-bg: #09090b;
+                --pl-surface: #121215;
+                --pl-text: #f4f4f5;
+                --pl-muted: #a1a1aa;
+                --pl-faint: #71717a;
+                --pl-line: rgba(244, 244, 245, 0.08);
+                --pl-dot: rgba(244, 244, 245, 0.07);
+                --pl-accent: #34d399;
+                --pl-accent-soft: rgba(52, 211, 153, 0.12);
+                --pl-shadow: 0 1px 2px rgba(0, 0, 0, 0.4), 0 12px 32px -12px rgba(0, 0, 0, 0.6);
+            }
+        }
+
+        body.pl {
+            margin: 0;
+            font-family: "Inter", system-ui, -apple-system, sans-serif;
+            background-color: var(--pl-bg);
+            background-image: radial-gradient(var(--pl-dot) 1px, transparent 1px);
+            background-size: 22px 22px;
+            color: var(--pl-text);
+            line-height: 1.6;
+            min-height: 100vh;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .pl *,
+        .pl *::before,
+        .pl *::after {
+            box-sizing: border-box;
+        }
+
+        .pl a {
+            text-decoration: none;
+        }
+
+        .pl [hidden] {
+            display: none !important;
+        }
+
+        .pl-page {
+            max-width: 1080px;
+            margin: 0 auto;
+            padding: 2.5rem 1.5rem 5rem;
+        }
+
+        /* ---------- Top bar ---------- */
+
+        .pl-topbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+
+        .pl-brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.7rem;
+            color: var(--pl-text);
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: -0.01em;
+        }
+
+        .pl-monogram {
+            width: 2.25rem;
+            height: 2.25rem;
+            display: grid;
+            place-items: center;
+            border-radius: 0.7rem;
+            background: var(--pl-accent);
+            color: var(--pl-surface);
+            font-weight: 800;
+            font-size: 1.1rem;
+            transform: rotate(-6deg);
+            transition: transform 0.4s var(--pl-ease);
+        }
+
+        .pl-brand:hover .pl-monogram,
+        .pl-brand:focus-visible .pl-monogram {
+            transform: rotate(0deg) scale(1.05);
+        }
+
+        .pl-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.5rem 1rem 0.5rem 0.75rem;
+            border-radius: 999px;
+            background: var(--pl-surface);
+            border: 1px solid var(--pl-line);
+            color: var(--pl-muted);
+            font-size: 0.875rem;
+            font-weight: 600;
+            transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s var(--pl-ease);
+        }
+
+        .pl-pill:hover,
+        .pl-pill:focus-visible {
+            color: var(--pl-accent);
+            border-color: var(--pl-accent);
+            transform: translateX(-2px);
+        }
+
+        .pl-pill svg {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        /* ---------- Header ---------- */
+
+        .pl-hero {
+            padding: 4.5rem 0 2rem;
+        }
+
+        .pl-eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--pl-accent);
+            background: var(--pl-accent-soft);
+            padding: 0.35rem 0.75rem;
+            border-radius: 999px;
+        }
+
+        .pl-hero h1 {
+            margin: 1.25rem 0 0;
+            font-size: clamp(2.25rem, 6vw, 3.75rem);
+            font-weight: 800;
+            line-height: 1.05;
+            letter-spacing: -0.045em;
+        }
+
+        .pl-hero h1 span {
+            color: var(--pl-accent);
+        }
+
+        /* ---------- Search and tags ---------- */
+
+        .pl-tools {
+            display: grid;
+            gap: 1.25rem;
+            margin-bottom: 3rem;
+        }
+
+        .pl-search {
+            position: relative;
+            max-width: 28rem;
+        }
+
+        .pl-search svg {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            width: 1.1rem;
+            height: 1.1rem;
+            transform: translateY(-50%);
+            color: var(--pl-faint);
+            pointer-events: none;
+        }
+
+        .pl-search input {
+            width: 100%;
+            padding: 0.85rem 1rem 0.85rem 2.75rem;
+            border-radius: 1rem;
+            border: 1px solid var(--pl-line);
+            background: var(--pl-surface);
+            box-shadow: var(--pl-shadow);
+            color: var(--pl-text);
+            font: inherit;
+            font-size: 1rem;
+            transition: border-color 0.2s ease;
+        }
+
+        .pl-search input::placeholder {
+            color: var(--pl-faint);
+        }
+
+        .pl-search input:focus {
+            outline: none;
+            border-color: var(--pl-accent);
+        }
+
+        .pl-tags {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .pl-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            padding: 0.3rem 0.75rem;
+            border-radius: 999px;
+            border: 1px solid var(--pl-line);
+            background: var(--pl-surface);
+            color: var(--pl-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            line-height: 1.5;
+            transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+        }
+
+        .pl-chip small {
+            color: var(--pl-faint);
+            font-weight: 600;
+            font-size: 0.75rem;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pl-chip:hover,
+        .pl-chip:focus-visible {
+            color: var(--pl-accent);
+            border-color: var(--pl-accent);
+        }
+
+        .pl-chip[aria-current="page"] {
+            color: var(--pl-accent);
+            border-color: transparent;
+            background: var(--pl-accent-soft);
+        }
+
+        /* ---------- Years and posts ---------- */
+
+        .pl-year {
+            display: grid;
+            grid-template-columns: 8rem 1fr;
+            gap: 2rem;
+            align-items: start;
+            margin-bottom: 2.5rem;
+        }
+
+        .pl-year h2 {
+            position: sticky;
+            top: 1.5rem;
+            margin: 0;
+            padding-top: 1.1rem;
+            font-size: 1.75rem;
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 1;
+            color: var(--pl-faint);
+            font-variant-numeric: tabular-nums;
+        }
+
+        .pl-posts {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            border-radius: 1.5rem;
+            background: var(--pl-surface);
+            border: 1px solid var(--pl-line);
+            box-shadow: var(--pl-shadow);
+            overflow: hidden;
+        }
+
+        .pl-post {
+            position: relative;
+            display: grid;
+            grid-template-columns: 4.5rem 1fr auto;
+            gap: 0.25rem 1.25rem;
+            align-items: baseline;
+            padding: 1.15rem 1.5rem;
+            border-top: 1px solid var(--pl-line);
+            transition: background-color 0.2s ease;
+        }
+
+        .pl-post:first-child {
+            border-top: 0;
+        }
+
+        .pl-post:hover,
+        .pl-post:focus-within {
+            background: var(--pl-accent-soft);
+        }
+
+        .pl-date {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--pl-faint);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .pl-post h3 {
+            margin: 0;
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.015em;
+            line-height: 1.35;
+        }
+
+        .pl-post h3 a {
+            color: var(--pl-text);
+        }
+
+        /* The title link covers the whole row; the tag links sit above it. */
+        .pl-post h3 a::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+        }
+
+        .pl-post:hover h3 a,
+        .pl-post h3 a:focus-visible {
+            color: var(--pl-accent);
+            outline: none;
+        }
+
+        .pl-summary {
+            grid-column: 2;
+            margin: 0;
+            color: var(--pl-muted);
+            font-size: 0.9rem;
+            line-height: 1.55;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .pl-post .pl-tags {
+            grid-column: 2;
+            margin-top: 0.4rem;
+            gap: 0.35rem;
+        }
+
+        .pl-post .pl-chip {
+            position: relative;
+            z-index: 1;
+            padding: 0.05rem 0.55rem;
+            font-size: 0.72rem;
+            background: var(--pl-bg);
+        }
+
+        .pl-arrow {
+            grid-column: 3;
+            grid-row: 1;
+            align-self: center;
+            width: 1.1rem;
+            height: 1.1rem;
+            color: var(--pl-accent);
+            opacity: 0;
+            transform: translateX(-6px);
+            transition: opacity 0.25s ease, transform 0.35s var(--pl-ease);
+        }
+
+        .pl-post:hover .pl-arrow,
+        .pl-post:focus-within .pl-arrow {
+            opacity: 1;
+            transform: none;
+        }
+
+        .pl-empty {
+            margin: 0;
+            padding: 2.5rem 1.5rem;
+            border-radius: 1.5rem;
+            border: 1px dashed var(--pl-line);
+            text-align: center;
+            color: var(--pl-muted);
+        }
+
+        /* ---------- Responsive ---------- */
+
+        @media (max-width: 760px) {
+            .pl-hero {
+                padding: 3rem 0 1.5rem;
+            }
+
+            .pl-year {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+
+            .pl-year h2 {
+                position: static;
+                font-size: 1.4rem;
+                padding: 0 0 0 0.25rem;
+            }
+
+            .pl-post {
+                grid-template-columns: 1fr;
+                padding: 1rem 1.25rem;
+            }
+
+            .pl-summary,
+            .pl-post .pl-tags {
+                grid-column: 1;
+            }
+
+            .pl-arrow {
+                display: none;
+            }
+
+            .pl-brand-name {
+                display: none;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+
+            .pl *,
+            .pl *::before,
+            .pl *::after {
+                transition-duration: 0.001ms !important;
+            }
+        }
+    </style>
 </head>
 
-<body>
-
-    <main class="listing">
-        <h1>{{.Site.Title}}</h1>
-        <p class="listing-count">{{len .Posts}} posts</p>
-        <ul class="post-list">
-            {{$year := ""}}
-            {{range .Posts}}
-            {{$y := .Meta.Date.Format "2006"}}
-            {{if ne $y $year}}{{$year = $y}}
-            <li class="post-year" aria-hidden="true">{{$y}}</li>
+<body class="pl">
+    <div class="pl-page">
+        <header class="pl-topbar">
+            {{if .Site.HomeURL}}
+            <a href="{{.Site.HomeURL}}" class="pl-brand" aria-label="{{.Site.Title}}, home">
+                <span class="pl-monogram" aria-hidden="true">{{initial .Site.Title}}</span>
+                <span class="pl-brand-name">{{.Site.Title}}</span>
+            </a>
+            <a href="{{.Site.HomeURL}}" class="pl-pill">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                </svg>
+                Home
+            </a>
+            {{else}}
+            <span class="pl-brand">
+                <span class="pl-monogram" aria-hidden="true">{{initial .Site.Title}}</span>
+                <span class="pl-brand-name">{{.Site.Title}}</span>
+            </span>
             {{end}}
-            <li class="post-item">
-                <article>
-                    <time class="post-date" datetime='{{.Meta.Date.Format "2006-01-02"}}'>{{.Meta.Date.Format "Jan 02"}}</time>
-                    <div class="post-main">
-                        <a href='{{$.Root}}{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html' class="post-link">
-                            <h2 class="post-title">{{.Meta.Title}}</h2>
-                        </a>
-                        {{if .Meta.Description}}<p class="post-desc">{{.Meta.Description}}</p>{{end}}
-                    </div>
-                    {{if .Meta.Tags}}
-                    <div class="post-tags">
-                        {{range .Meta.Tags}}<span class="tag">{{.}}</span>{{end}}
-                    </div>
+        </header>
+
+        <main>
+            <section class="pl-hero">
+                {{if .Tag}}
+                <span class="pl-eyebrow">Tag · {{len .Posts}} {{if eq (len .Posts) 1}}post{{else}}posts{{end}}</span>
+                <h1><span>#</span>{{.Tag}}</h1>
+                {{else}}
+                <span class="pl-eyebrow">{{len .Posts}} {{if eq (len .Posts) 1}}post{{else}}posts{{end}}</span>
+                {{end}}
+            </section>
+
+            <div class="pl-tools">
+                <!-- Revealed by the script below; without JavaScript the full list is simply there. -->
+                <label class="pl-search" hidden>
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"></circle>
+                        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    </svg>
+                    <input type="search" id="pl-filter" placeholder="Search posts" aria-label="Search posts"
+                        autocomplete="off" />
+                </label>
+
+                {{if .Tags}}
+                <ul class="pl-tags" aria-label="Tags">
+                    <li><a class="pl-chip" href="{{.Root}}{{.Site.ListingFile}}" {{if not .Tag}}aria-current="page"{{end}}>All</a></li>
+                    {{range .Tags}}
+                    <li><a class="pl-chip" href='{{$.Root}}tags/{{.Slug}}/{{$.Site.ListingFile}}' {{if eq (tagSlug $.Tag) .Slug}}aria-current="page"{{end}}>{{.Name}} <small>{{.Count}}</small></a></li>
                     {{end}}
-                </article>
-            </li>
-            {{end}}
-        </ul>
-    </main>
+                </ul>
+                {{end}}
+            </div>
 
+            {{- $year := ""}}
+            {{- range .Posts}}
+            {{- $y := .Meta.Date.Format "2006"}}
+            {{- if ne $y $year}}
+            {{- if $year}}
+                </ul>
+            </section>
+            {{- end}}
+            {{- $year = $y}}
+            <section class="pl-year">
+                <h2>{{if undated .Meta.Date}}Undated{{else}}{{$y}}{{end}}</h2>
+                <ul class="pl-posts">
+            {{- end}}
+                    <li class="pl-post">
+                        {{if undated .Meta.Date}}<span class="pl-date"></span>{{else}}<time class="pl-date" datetime='{{.Meta.Date.Format "2006-01-02"}}'>{{.Meta.Date.Format "Jan 02"}}</time>{{end}}
+                        <h3><a href='{{$.Root}}{{.Meta.Date.Format "2006/01/02"}}/{{.Meta.Slug}}/index.html'>{{.Meta.Title}}</a></h3>
+                        <svg class="pl-arrow" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2.25" stroke-linecap="round" stroke-linejoin="round"
+                            aria-hidden="true">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                        {{with summary .}}<p class="pl-summary">{{.}}</p>{{end}}
+                        {{- if .Meta.Tags}}
+                        <ul class="pl-tags" aria-label="Tags">
+                            {{range .Meta.Tags}}<li><a class="pl-chip" href='{{$.Root}}tags/{{tagSlug .}}/{{$.Site.ListingFile}}'>{{.}}</a></li>{{end}}
+                        </ul>
+                        {{- end}}
+                    </li>
+            {{- end}}
+            {{- if $year}}
+                </ul>
+            </section>
+            {{- end}}
+
+            <p class="pl-empty" id="pl-empty" hidden>No posts match your search.</p>
+        </main>
+    </div>
+
+    <script>
+        (function () {
+            var search = document.querySelector('.pl-search');
+            var input = document.getElementById('pl-filter');
+            var empty = document.getElementById('pl-empty');
+            if (!search || !input) return;
+            search.hidden = false;
+
+            var years = Array.prototype.slice.call(document.querySelectorAll('.pl-year'));
+            var rows = Array.prototype.slice.call(document.querySelectorAll('.pl-post')).map(function (li) {
+                return { li: li, text: li.textContent.replace(/\s+/g, ' ').toLowerCase() };
+            });
+
+            input.addEventListener('input', function () {
+                var words = input.value.toLowerCase().split(/\s+/).filter(Boolean);
+                var shown = 0;
+                rows.forEach(function (row) {
+                    var match = words.every(function (w) { return row.text.indexOf(w) !== -1; });
+                    row.li.hidden = !match;
+                    if (match) shown++;
+                });
+                years.forEach(function (year) {
+                    year.hidden = !year.querySelector('.pl-post:not([hidden])');
+                });
+                empty.hidden = shown !== 0;
+            });
+        })();
+    </script>
 </body>
 
 </html>

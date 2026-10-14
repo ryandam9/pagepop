@@ -414,3 +414,88 @@ func TestMarkdownDir(t *testing.T) {
 		}
 	}
 }
+
+func TestListing(t *testing.T) {
+	tempDir := t.TempDir()
+	write := func(rel, content string) {
+		t.Helper()
+		path := filepath.Join(tempDir, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	write("posts/described.md", "# Described\n- Created - 2025/01/03\n- Tags - Go, Web\n- Description - Given summary.\n\nIgnored paragraph.")
+	write("posts/plain.md", "# Plain\n- Created - 2024/06/01\n- Tags - go\n\nFirst <em>paragraph</em> &amp; more.\n\nSecond paragraph.")
+	write("posts/nodate.md", "# No Date\n\nbody")
+	write("cfg.yml", fmt.Sprintf("site:\n  title: Ravi\n  home_url: /\n  listing_file: index.html\nmarkdown_files:\n  - dir: %s\n",
+		filepath.ToSlash(filepath.Join(tempDir, "posts"))))
+
+	out := filepath.Join(tempDir, "out")
+	if err := Site(out, filepath.Join(tempDir, "cfg.yml"), false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() failed: %v", err)
+	}
+
+	if _, err := os.Stat(filepath.Join(out, defaultListingFile)); err == nil {
+		t.Errorf("listing_file is set, so %s should not be written", defaultListingFile)
+	}
+	listing, err := os.ReadFile(filepath.Join(out, "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`href="/"`,                    // home_url
+		`Given summary.`,              // Description wins over the body
+		`First paragraph &amp; more.`, // no Description: first paragraph, tags stripped
+		`>Undated</h2>`,               // 1900/01/01 placeholder
+		`href='tags/go/index.html'`,   // tag links use listing_file
+		`Go <small>2</small>`,         // "Go" and "go" share one tag page
+		`aria-current="page">All</a>`, // main listing marks "All"
+	} {
+		if !strings.Contains(string(listing), want) {
+			t.Errorf("listing missing %q", want)
+		}
+	}
+	if strings.Contains(string(listing), "Ignored paragraph") || strings.Contains(string(listing), "Second paragraph") {
+		t.Errorf("listing summary used the wrong text")
+	}
+
+	tagListing, err := os.ReadFile(filepath.Join(out, "tags", "go", "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{
+		`<span>#</span>Go</h1>`,
+		`<title>Tag: Go - Ravi</title>`,
+		`<span class="pl-brand-name">Ravi</span>`,
+		`href='../../2025/01/03/described/index.html'`,
+		`href='../../2024/06/01/plain/index.html'`,
+		`href='../../tags/go/index.html' aria-current="page"`,
+	} {
+		if !strings.Contains(string(tagListing), want) {
+			t.Errorf("tag listing missing %q", want)
+		}
+	}
+}
+
+func TestListingFileMustBeAFileName(t *testing.T) {
+	tempDir := t.TempDir()
+	cfg := filepath.Join(tempDir, "cfg.yml")
+	if err := os.WriteFile(cfg, []byte("site:\n  listing_file: ../escape.html\n"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := Site(filepath.Join(tempDir, "out"), cfg, false, false, false, logutil.NewDiscard()); err == nil {
+		t.Errorf("a listing_file with a path should be rejected")
+	}
+}
+
+func TestSummaryTruncates(t *testing.T) {
+	long := strings.Repeat("word ", 100)
+	got := summary(post{Body: template.HTML("<p>" + long + "</p>")})
+	if !strings.HasSuffix(got, "…") || len([]rune(got)) > maxSummary+1 {
+		t.Errorf("summary not truncated: %q", got)
+	}
+}
