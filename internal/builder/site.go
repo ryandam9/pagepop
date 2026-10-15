@@ -35,6 +35,10 @@ type SiteConfig struct {
 	// ListingFile names the listing page written to the output directory and
 	// to each tag directory. Default: blog_entries.html.
 	ListingFile string `yaml:"listing_file"`
+	// ListingTemplate, when set, is a Go html/template file used in place of
+	// the built-in listing. A relative path is resolved against the config
+	// file's directory.
+	ListingTemplate string `yaml:"listing_template"`
 }
 
 // tagCount is one entry in the listing's tag index.
@@ -185,6 +189,11 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	// Remove trailing slash from base url
 	cfg.Site.BaseURL = strings.TrimSuffix(cfg.Site.BaseURL, "/")
 
+	listing, err := loadListingTemplate(cfg.Site.ListingTemplate, configPath)
+	if err != nil {
+		return err
+	}
+
 	cssBytes := buildCSS()
 	cssQuery := cssVersionQuery(cssBytes)
 
@@ -225,11 +234,11 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 
 	tags := countTags(posts)
 
-	if err := writeBlogListing(outputDir, "", "", posts, tags, cfg.Site, cssQuery); err != nil {
+	if err := writeBlogListing(listing, outputDir, "", "", posts, tags, cfg.Site, cssQuery); err != nil {
 		return fmt.Errorf("writing blog listing: %w", err)
 	}
 
-	if err := writeTagIndexes(outputDir, posts, tags, cfg.Site, cssBytes, cssQuery); err != nil {
+	if err := writeTagIndexes(listing, outputDir, posts, tags, cfg.Site, cssBytes, cssQuery); err != nil {
 		return fmt.Errorf("writing tag indexes: %w", err)
 	}
 
@@ -500,12 +509,7 @@ func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref str
 // outputDir. root is the relative path from outputDir back to the site root
 // (e.g. "../../" for tag pages) and is prefixed to every post and tag link.
 // tag is the tag a tag page lists, empty for the main listing.
-func writeBlogListing(outputDir, root, tag string, posts []post, tags []tagCount, siteCfg SiteConfig, cssQuery string) error {
-	tmpl, err := template.New("listing").Funcs(listingFuncs).Parse(listingTemplate)
-	if err != nil {
-		return err
-	}
-
+func writeBlogListing(tmpl *template.Template, outputDir, root, tag string, posts []post, tags []tagCount, siteCfg SiteConfig, cssQuery string) error {
 	var buf bytes.Buffer
 	data := struct {
 		Posts    []post
@@ -536,6 +540,27 @@ func writeBlogListing(outputDir, root, tag string, posts []post, tags []tagCount
 		return fmt.Errorf("mkdir %s: %w", outputDir, err)
 	}
 	return os.WriteFile(outPath, buf.Bytes(), 0644)
+}
+
+// loadListingTemplate parses the listing template: the file named by
+// site.listing_template if set, otherwise the built-in one.
+func loadListingTemplate(path, configPath string) (*template.Template, error) {
+	text := listingTemplate
+	if path != "" {
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(filepath.Dir(configPath), path)
+		}
+		data, err := os.ReadFile(path)
+		if err != nil {
+			return nil, fmt.Errorf("reading site.listing_template: %w", err)
+		}
+		text = string(data)
+	}
+	tmpl, err := template.New("listing").Funcs(listingFuncs).Parse(text)
+	if err != nil {
+		return nil, fmt.Errorf("parsing listing template: %w", err)
+	}
+	return tmpl, nil
 }
 
 var listingFuncs = template.FuncMap{
@@ -636,7 +661,7 @@ func copyStatic(outputDir string, cssBytes []byte) error {
 	return os.WriteFile(cssPath, cssBytes, 0644)
 }
 
-func writeTagIndexes(outputDir string, posts []post, tags []tagCount, siteCfg SiteConfig, cssBytes []byte, cssQuery string) error {
+func writeTagIndexes(listing *template.Template, outputDir string, posts []post, tags []tagCount, siteCfg SiteConfig, cssBytes []byte, cssQuery string) error {
 	tagPosts := map[string][]post{}
 	for _, p := range posts {
 		seen := map[string]bool{}
@@ -653,7 +678,7 @@ func writeTagIndexes(outputDir string, posts []post, tags []tagCount, siteCfg Si
 	for _, tc := range tags {
 		tagDir := filepath.Join(outputDir, "tags", tc.Slug)
 
-		if err := writeBlogListing(tagDir, "../../", tc.Name, tagPosts[tc.Slug], tags, siteCfg, cssQuery); err != nil {
+		if err := writeBlogListing(listing, tagDir, "../../", tc.Name, tagPosts[tc.Slug], tags, siteCfg, cssQuery); err != nil {
 			return err
 		}
 		// Copy style.css so the relative link works
