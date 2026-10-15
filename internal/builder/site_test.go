@@ -207,7 +207,7 @@ func TestTOCPosition(t *testing.T) {
 	toc := template.HTML(`<nav class="toc"></nav>`)
 	meta := postMeta{Title: "T", Date: time.Now()}
 
-	side, err := wrapPost(meta, body, toc, "style.css", false, SiteConfig{})
+	side, err := wrapPost(builtinPost, meta, body, toc, "style.css", false, SiteConfig{})
 	if err != nil {
 		t.Fatalf("wrapPost (side) failed: %v", err)
 	}
@@ -215,7 +215,7 @@ func TestTOCPosition(t *testing.T) {
 		t.Errorf("default layout should be toc-side; got:\n%s", side)
 	}
 
-	top, err := wrapPost(meta, body, toc, "style.css", true, SiteConfig{})
+	top, err := wrapPost(builtinPost, meta, body, toc, "style.css", true, SiteConfig{})
 	if err != nil {
 		t.Fatalf("wrapPost (top) failed: %v", err)
 	}
@@ -279,11 +279,11 @@ func TestEmbedTweets(t *testing.T) {
 	}
 
 	meta := postMeta{Title: "T", Date: time.Now()}
-	with, _ := wrapPost(meta, renderMarkdown("https://x.com/jack/status/20\n"), "", "style.css", false, SiteConfig{})
+	with, _ := wrapPost(builtinPost, meta, renderMarkdown("https://x.com/jack/status/20\n"), "", "style.css", false, SiteConfig{})
 	if !strings.Contains(with, "platform.twitter.com/widgets.js") {
 		t.Errorf("post with an embedded tweet should load widgets.js")
 	}
-	without, _ := wrapPost(meta, renderMarkdown("Hello\n"), "", "style.css", false, SiteConfig{})
+	without, _ := wrapPost(builtinPost, meta, renderMarkdown("Hello\n"), "", "style.css", false, SiteConfig{})
 	if strings.Contains(without, "platform.twitter.com") {
 		t.Errorf("post without tweets must not load widgets.js")
 	}
@@ -491,6 +491,8 @@ func TestListingFileMustBeAFileName(t *testing.T) {
 	}
 }
 
+var builtinPost = template.Must(template.New("post").Funcs(listingFuncs).Parse(postTemplate))
+
 func TestListingTemplate(t *testing.T) {
 	tempDir := t.TempDir()
 	write := func(rel, content string) {
@@ -531,5 +533,65 @@ func TestListingTemplate(t *testing.T) {
 	write("conf/cfg.yml", "site:\n  listing_template: missing.tmpl\n")
 	if err := Site(out, filepath.Join(tempDir, "conf", "cfg.yml"), false, false, false, logutil.NewDiscard()); err == nil {
 		t.Error("a missing listing_template should fail the build")
+	}
+}
+
+func TestPostTemplate(t *testing.T) {
+	tempDir := t.TempDir()
+	write := func(rel, content string) {
+		t.Helper()
+		path := filepath.Join(tempDir, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	write("posts/one.md", "# One\n- Created - 2025/01/03\n\nHello *there*.")
+	write("conf/post.tmpl", `<p>{{.Meta.Title}}|{{if undated .Meta.Date}}undated{{end}}|{{.Body}}</p>`)
+	write("conf/cfg.yml", fmt.Sprintf("site:\n  post_template: post.tmpl\nmarkdown_files:\n  - dir: %s\n",
+		filepath.ToSlash(filepath.Join(tempDir, "posts"))))
+
+	out := filepath.Join(tempDir, "out")
+	if err := Site(out, filepath.Join(tempDir, "conf", "cfg.yml"), false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() failed: %v", err)
+	}
+	got, err := os.ReadFile(filepath.Join(out, "2025", "01", "03", "one", "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "<p>One||<p>Hello <em>there</em>.</p>\n</p>"; string(got) != want {
+		t.Errorf("post = %q, want %q", got, want)
+	}
+
+	// The Markdown has not changed, but the template has: the post is rebuilt.
+	write("conf/post.tmpl", `<p>v2 {{.Meta.Title}}</p>`)
+	later := time.Now().Add(time.Hour)
+	if err := os.Chtimes(filepath.Join(tempDir, "conf", "post.tmpl"), later, later); err != nil {
+		t.Fatal(err)
+	}
+	if err := Site(out, filepath.Join(tempDir, "conf", "cfg.yml"), false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() failed: %v", err)
+	}
+	got, err = os.ReadFile(filepath.Join(out, "2025", "01", "03", "one", "index.html"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if want := "<p>v2 One</p>"; string(got) != want {
+		t.Errorf("after a template change, post = %q, want %q", got, want)
+	}
+}
+
+func TestTOCEntities(t *testing.T) {
+	_, entries := injectHeadingIDs(string(renderMarkdown("## What's wrong?\n\n## A & B\n")))
+	var got []string
+	for _, e := range entries {
+		got = append(got, e.Text)
+	}
+	want := []string{"What\u2019s wrong?", "A &amp; B"}
+	if !reflect.DeepEqual(got, want) {
+		t.Errorf("TOC text = %q, want %q", got, want)
 	}
 }

@@ -95,6 +95,7 @@ site:
   home_url: /               # adds a Home link back to the main site
   listing_file: index.html  # listing file name (default: blog_entries.html)
   listing_template: listing.tmpl  # your own listing template (default: built-in)
+  post_template: post.tmpl        # your own post page template (default: built-in)
 ```
 
 The listing groups posts by year, newest first, with a search box and the
@@ -110,6 +111,15 @@ listing), `.Site`, `.Root` (the path back to the listing root, to prefix links
 with) and `.CSSQuery`, plus the functions `tagSlug`, `undated` and `initial`.
 The built-in [`internal/builder/listing.html`](internal/builder/listing.html)
 is a working example.
+
+`post_template` does the same for each post page. It gets `.Meta` (`Title`,
+`Description`, `Tags`, `Date`, `Slug`), `.Body` (the rendered post), `.TOC`
+(empty when the post has fewer than two headings), `.TOCTop`, `.CSSHref` (the
+built-in stylesheet, which a custom template is free to ignore), `.Site` and
+`.HasTweets`, plus the same functions as the listing. Code blocks carry
+Chroma's `chroma` classes and callouts `callout callout-<type>`, so a custom
+template must style both. The built-in
+[`internal/builder/post.html`](internal/builder/post.html) is a working example.
 
 By default the table of contents sits in a sticky left sidebar on wide
 screens (≥1200px) and collapses above the content on narrower ones. Pass
