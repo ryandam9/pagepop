@@ -94,12 +94,22 @@ site:
   base_url: https://example.com  # enables feed.xml and sitemap.xml
   home_url: /               # adds a Home link back to the main site
   listing_file: index.html  # listing file name (default: blog_entries.html)
+  listing_template: listing.tmpl  # your own listing template (default: built-in)
 ```
 
 The listing groups posts by year, newest first, with a search box and the
 site's tags. Each row shows the post's date, title and tags. Undated posts are grouped under "Undated".
 `listing_file` names both the main listing and each tag's listing, so setting
 it to `index.html` lets a host serve the listings as directory indexes.
+
+`listing_template` replaces the built-in listing with a Go `html/template` file
+of your own, so the listing can match the rest of a site. A relative path is
+resolved against the config file. The template is used for the main listing
+and every tag listing, and gets `.Posts`, `.Tags`, `.Tag` (empty on the main
+listing), `.Site`, `.Root` (the path back to the listing root, to prefix links
+with) and `.CSSQuery`, plus the functions `tagSlug`, `undated` and `initial`.
+The built-in [`internal/builder/listing.html`](internal/builder/listing.html)
+is a working example.
 
 By default the table of contents sits in a sticky left sidebar on wide
 screens (≥1200px) and collapses above the content on narrower ones. Pass

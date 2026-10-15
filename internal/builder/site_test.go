@@ -490,3 +490,46 @@ func TestListingFileMustBeAFileName(t *testing.T) {
 		t.Errorf("a listing_file with a path should be rejected")
 	}
 }
+
+func TestListingTemplate(t *testing.T) {
+	tempDir := t.TempDir()
+	write := func(rel, content string) {
+		t.Helper()
+		path := filepath.Join(tempDir, rel)
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatal(err)
+		}
+		if err := os.WriteFile(path, []byte(content), 0644); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	write("posts/one.md", "# One\n- Created - 2025/01/03\n- Tags - Go\n\nbody")
+	// A relative path is resolved against the config file, not the working directory.
+	write("conf/listing.tmpl", `<p>{{.Site.Title}}|{{.Tag}}|{{range .Posts}}{{.Meta.Title}};{{end}}|{{.Root}}</p>`)
+	write("conf/cfg.yml", fmt.Sprintf("site:\n  title: Ravi\n  listing_template: listing.tmpl\nmarkdown_files:\n  - dir: %s\n",
+		filepath.ToSlash(filepath.Join(tempDir, "posts"))))
+
+	out := filepath.Join(tempDir, "out")
+	if err := Site(out, filepath.Join(tempDir, "conf", "cfg.yml"), false, false, false, logutil.NewDiscard()); err != nil {
+		t.Fatalf("Site() failed: %v", err)
+	}
+
+	for rel, want := range map[string]string{
+		defaultListingFile: `<p>Ravi||One;|</p>`,
+		filepath.Join("tags", "go", defaultListingFile): `<p>Ravi|Go|One;|../../</p>`,
+	} {
+		got, err := os.ReadFile(filepath.Join(out, rel))
+		if err != nil {
+			t.Fatal(err)
+		}
+		if string(got) != want {
+			t.Errorf("%s = %q, want %q", rel, got, want)
+		}
+	}
+
+	write("conf/cfg.yml", "site:\n  listing_template: missing.tmpl\n")
+	if err := Site(out, filepath.Join(tempDir, "conf", "cfg.yml"), false, false, false, logutil.NewDiscard()); err == nil {
+		t.Error("a missing listing_template should fail the build")
+	}
+}
