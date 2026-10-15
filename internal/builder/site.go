@@ -6,6 +6,7 @@ import (
 	_ "embed"
 	"encoding/hex"
 	"fmt"
+	stdhtml "html"
 	"html/template"
 	"os"
 	"path/filepath"
@@ -39,6 +40,9 @@ type SiteConfig struct {
 	// the built-in listing. A relative path is resolved against the config
 	// file's directory.
 	ListingTemplate string `yaml:"listing_template"`
+	// PostTemplate, when set, is a Go html/template file used in place of the
+	// built-in post page, resolved the same way as ListingTemplate.
+	PostTemplate string `yaml:"post_template"`
 }
 
 // tagCount is one entry in the listing's tag index.
@@ -189,9 +193,21 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	// Remove trailing slash from base url
 	cfg.Site.BaseURL = strings.TrimSuffix(cfg.Site.BaseURL, "/")
 
-	listing, err := loadListingTemplate(cfg.Site.ListingTemplate, configPath)
+	listing, err := loadTemplate("listing", listingTemplate, cfg.Site.ListingTemplate, configPath)
 	if err != nil {
 		return err
+	}
+	postTmpl, err := loadTemplate("post", postTemplate, cfg.Site.PostTemplate, configPath)
+	if err != nil {
+		return err
+	}
+	// With a custom post template, a post is stale when the template is newer
+	// than its output, whatever the Markdown says.
+	var postTmplTime time.Time
+	if cfg.Site.PostTemplate != "" {
+		if st, err := os.Stat(resolveConfigPath(cfg.Site.PostTemplate, configPath)); err == nil {
+			postTmplTime = st.ModTime()
+		}
 	}
 
 	cssBytes := buildCSS()
@@ -200,7 +216,7 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	var posts []post
 
 	for _, file := range markdownFiles(cfg.MarkdownFiles, log) {
-		p, err := processFile(file, outputDir, cssBytes, cssQuery, embedStyles, tocTop, cfg.Site, log)
+		p, err := processFile(postTmpl, postTmplTime, file, outputDir, cssBytes, cssQuery, embedStyles, tocTop, cfg.Site, log)
 		if err != nil {
 			log.Warn("processing file %s: %v", file, err)
 			continue
@@ -259,7 +275,7 @@ func Site(outputDir, configPath string, embedStyles, clean, tocTop bool, log *lo
 	return nil
 }
 
-func processFile(mdPath, outputDir string, cssBytes []byte, cssQuery string, embedStyles, tocTop bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
+func processFile(postTmpl *template.Template, postTmplTime time.Time, mdPath, outputDir string, cssBytes []byte, cssQuery string, embedStyles, tocTop bool, siteCfg SiteConfig, log *logutil.Logger) (post, error) {
 	data, err := os.ReadFile(mdPath)
 	if err != nil {
 		return post{}, fmt.Errorf("reading %s: %w", mdPath, err)
@@ -287,11 +303,14 @@ func processFile(mdPath, outputDir string, cssBytes []byte, cssQuery string, emb
 	// Skip regeneration when the output HTML is already newer than the source
 	// Markdown file and links the current stylesheet version. A changed
 	// stylesheet changes the link, so every post is rewritten to point at it.
+	// A custom post template need not link that stylesheet; there the
+	// template's own modification time stands in for it.
 	mdStat, err := os.Stat(mdPath)
 	if err != nil {
 		return post{}, fmt.Errorf("stat %s: %w", mdPath, err)
 	}
-	if outStat, err := os.Stat(outPath); err == nil && !outStat.ModTime().Before(mdStat.ModTime()) && linksCSS(outPath, cssHref) {
+	if outStat, err := os.Stat(outPath); err == nil && !outStat.ModTime().Before(mdStat.ModTime()) &&
+		(postTmplTime.IsZero() && linksCSS(outPath, cssHref) || !postTmplTime.IsZero() && !outStat.ModTime().Before(postTmplTime)) {
 		log.Info("Skipped (up to date): %s", outPath)
 		return post{Meta: meta, Body: renderMarkdown(bodyMD)}, nil
 	}
@@ -316,7 +335,7 @@ func processFile(mdPath, outputDir string, cssBytes []byte, cssQuery string, emb
 		}
 	}
 
-	full, err := wrapPost(meta, bodyHTML, toc, cssHref, tocTop, siteCfg)
+	full, err := wrapPost(postTmpl, meta, bodyHTML, toc, cssHref, tocTop, siteCfg)
 	if err != nil {
 		return post{}, fmt.Errorf("wrapping post %s: %w", mdPath, err)
 	}
@@ -453,7 +472,7 @@ func injectHeadingIDs(htmlStr string) (string, []tocEntry) {
 		}
 		idCounts[base]++
 
-		entries = append(entries, tocEntry{Level: level, ID: id, Text: template.HTMLEscapeString(plain)})
+		entries = append(entries, tocEntry{Level: level, ID: id, Text: template.HTMLEscapeString(stdhtml.UnescapeString(plain))})
 		return fmt.Sprintf(`<h%d id="%s">%s</h%d>`, level, id, inner, level)
 	})
 
@@ -473,11 +492,7 @@ func buildTOC(entries []tocEntry) template.HTML {
 	return template.HTML(buf.String())
 }
 
-func wrapPost(m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref string, tocTop bool, siteCfg SiteConfig) (string, error) {
-	tmpl, err := template.New("post").Parse(postTemplate)
-	if err != nil {
-		return "", err
-	}
+func wrapPost(tmpl *template.Template, m postMeta, bodyHTML template.HTML, toc template.HTML, cssHref string, tocTop bool, siteCfg SiteConfig) (string, error) {
 
 	var buf bytes.Buffer
 	data := struct {
@@ -542,25 +557,33 @@ func writeBlogListing(tmpl *template.Template, outputDir, root, tag string, post
 	return os.WriteFile(outPath, buf.Bytes(), 0644)
 }
 
-// loadListingTemplate parses the listing template: the file named by
-// site.listing_template if set, otherwise the built-in one.
-func loadListingTemplate(path, configPath string) (*template.Template, error) {
-	text := listingTemplate
+// loadTemplate parses a page template: the file at path (site.listing_template
+// or site.post_template) if set, otherwise the built-in text. A relative path
+// is resolved against the config file's directory. Both kinds of template get
+// the same helper functions.
+func loadTemplate(name, builtin, path, configPath string) (*template.Template, error) {
+	text := builtin
 	if path != "" {
-		if !filepath.IsAbs(path) {
-			path = filepath.Join(filepath.Dir(configPath), path)
-		}
-		data, err := os.ReadFile(path)
+		data, err := os.ReadFile(resolveConfigPath(path, configPath))
 		if err != nil {
-			return nil, fmt.Errorf("reading site.listing_template: %w", err)
+			return nil, fmt.Errorf("reading %s template: %w", name, err)
 		}
 		text = string(data)
 	}
-	tmpl, err := template.New("listing").Funcs(listingFuncs).Parse(text)
+	tmpl, err := template.New(name).Funcs(listingFuncs).Parse(text)
 	if err != nil {
-		return nil, fmt.Errorf("parsing listing template: %w", err)
+		return nil, fmt.Errorf("parsing %s template: %w", name, err)
 	}
 	return tmpl, nil
+}
+
+// resolveConfigPath resolves a path from the config file against the config
+// file's own directory, leaving absolute paths alone.
+func resolveConfigPath(path, configPath string) string {
+	if filepath.IsAbs(path) {
+		return path
+	}
+	return filepath.Join(filepath.Dir(configPath), path)
 }
 
 var listingFuncs = template.FuncMap{
